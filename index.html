@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Javi Barbero | Portfolio</title>
+    <meta name="theme-color" content="#f2f2f7">
+   
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+    /* --- 1. CORE VARIABLES (iOS SYSTEM) --- */
+    :root {
+        --bg-color: #f2f2f7;
+        --modal-bg: rgba(255, 255, 255, 0.92);
+        --bar-bg: rgba(255, 255, 255, 0.75);
+        
+        /* El secreto de iOS: Transparencia + Saturación + Blur */
+        --tile-bg: rgba(255, 255, 255, 0.65); 
+        --tile-border: rgba(255, 255, 255, 0.4);
+        
+        --text-primary: #000000;
+        --text-secondary: #8a8a8e;
+        
+        --accent: #007aff; /* System Blue */
+        --danger: #ff3b30;
+        --success: #34c759;
+        --warning: #ff9f0a;
+        
+        /* Sombras Apple-like */
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+        --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+        --shadow-float: 0 20px 40px -10px rgba(0,0,0,0.15);
+        
+        --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+        --font-mono: "SF Mono", "Menlo", monospace;
+        
+        --radius: 22px; /* Radio estándar de widgets iOS 16+ */
+        --radius-sm: 14px;
+        --header-height: 54px;
+    }
+
+    [data-theme="dark"] {
+        --bg-color: #000000;
+        --modal-bg: rgba(28, 28, 30, 0.92);
+        --bar-bg: rgba(28, 28, 30, 0.75);
+        --tile-bg: rgba(44, 44, 46, 0.6);
+        --tile-border: rgba(255, 255, 255, 0.1);
+        --text-primary: #ffffff;
+        --text-secondary: #98989d;
+        --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* --- 2. GLOBAL RESET & UTILS --- */
+    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+    body { font-family: var(--font-ui); background-color: var(--bg-color); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; letter-spacing: -0.015em; padding-top: var(--header-height); }
+    
+    /* Fondo con Mesh Gradient sutil */
+    .mesh { position: fixed; inset: 0; z-index: -1; opacity: 0.5; background: radial-gradient(circle at 15% 15%, rgba(0,122,255,0.12), transparent 60%), radial-gradient(circle at 85% 85%, rgba(255,59,48,0.08), transparent 60%); filter: blur(80px); pointer-events: none; }
+
+    /* --- 3. TOP NAVIGATION BAR (Fixed & Glass) --- */
+    #admin-menubar {
+        position: fixed; top: 0; left: 0; right: 0; height: var(--header-height);
+        background: var(--bar-bg);
+        backdrop-filter: saturate(180%) blur(20px);
+        -webkit-backdrop-filter: saturate(180%) blur(20px);
+        border-bottom: 0.5px solid rgba(0,0,0,0.1);
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 0 20px; z-index: 5000;
+        transition: 0.3s;
+    }
+    .menubar-group { display: flex; align-items: center; gap: 8px; }
+    
+    .menubar-btn {
+        background: transparent; border: none; color: var(--accent);
+        font-family: var(--font-ui); font-size: 0.9rem; font-weight: 500;
+        padding: 6px 10px; cursor: pointer; border-radius: 8px;
+        transition: background 0.2s, transform 0.1s;
+    }
+    .menubar-btn:hover { background: rgba(120,120,120,0.1); }
+    .menubar-btn:active { transform: scale(0.96); }
+    .menubar-btn.primary { font-weight: 600; background: rgba(0,122,255,0.1); }
+    .menubar-brand { font-weight: 700; color: var(--text-primary); font-size: 0.95rem; margin-right: 10px; cursor: default; }
+
+    /* --- 4. LAYOUT --- */
+    .container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 40px 20px 140px; }
+    
+    /* Header Profile & Filters */
+    header { margin-bottom: 30px; }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+    .profile { display: flex; align-items: center; gap: 16px; cursor: pointer; transition: 0.2s; }
+    .profile:active { opacity: 0.6; }
+    
+    /* AVATAR */
+    .avatar { 
+        width: 64px; height: 64px; border-radius: 50%; 
+        box-shadow: var(--shadow-sm); 
+        background-color: #ddd; 
+        background-image: url('ft.jpeg'); 
+        background-size: cover; 
+        background-position: center; 
+    }
+    
+    .titles h1 { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; }
+    .titles p { font-size: 0.95rem; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }
+    
+    .icon-btn { width: 42px; height: 42px; border-radius: 50%; background: var(--tile-bg); backdrop-filter: blur(10px); border: none; font-size: 1.1rem; cursor: pointer; color: var(--accent); box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .icon-btn:active { transform: scale(0.92); filter: brightness(0.9); }
+
+    /* Filter Pills */
+    .filters { display: flex; gap: 10px; overflow-x: auto; padding: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin-left: -4px; }
+    .pill { border: none; background: rgba(120,120,120,0.08); color: var(--text-secondary); padding: 8px 18px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.3s; white-space: nowrap; }
+    .pill:hover { background: rgba(120,120,120,0.15); }
+    .pill.active { background: var(--text-primary); color: var(--bg-color); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+
+    /* --- 5. GRID SYSTEM --- */
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 170px; gap: 18px; padding: 10px 0; }
+    
+    .tile { 
+        grid-column: span 2; grid-row: span 1; position: relative; 
+        background: var(--tile-bg);
+        backdrop-filter: saturate(180%) blur(20px);
+        -webkit-backdrop-filter: saturate(180%) blur(20px);
+        border: 1px solid var(--tile-border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-sm);
+        padding: 22px; cursor: pointer; overflow: hidden;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s;
+        display: flex; flex-direction: column; justify-content: space-between;
+    }
+    
+    .tile:hover { z-index: 10; transform: scale(1.025); box-shadow: var(--shadow-float); border-color: rgba(255,255,255,0.5); }
+    .tile:active { transform: scale(0.96); transition: 0.15s; }
+    .tile.visited { opacity: 0.9; }
+    
+    .tile.small { grid-column: span 1; }
+    .tile.wide { grid-column: span 4; }
+    .tile.tall { grid-column: span 2; grid-row: span 2; }
+    
+    /* Standard Content */
+    .tile-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .tile-icon { font-size: 1.8rem; }
+    .tile-titles h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 2px; color: var(--text-primary); line-height: 1.2; }
+    .tile-titles p { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; line-height: 1.35; }
+    
+    /* Background Images */
+    .tile.has-bg { border: none; }
+    .tile.has-bg .tile-titles h3, .tile.has-bg .tile-titles p { color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    .tile-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; transition: transform 0.6s; }
+    .tile:hover .tile-bg { transform: scale(1.08); }
+    .tile-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.5) 10%, transparent 80%); z-index: 0; pointer-events: none; }
+    .tile-content { z-index: 1; position: relative; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+
+    /* --- 6. WIDGET STYLES --- */
+    .music-card { display: flex; align-items: center; gap: 14px; height: 100%; }
+    .album-art { width: 56px; height: 56px; border-radius: 10px; box-shadow: var(--shadow-sm); object-fit: cover; }
+    .music-info { flex: 1; min-width: 0; }
+    .music-bars { display: flex; gap: 3px; align-items: flex-end; height: 12px; margin-top: 6px; }
+    .bar { width: 3px; background: var(--accent); border-radius: 2px; animation: sound 0.8s infinite ease-in-out alternate; }
+    .bar:nth-child(2) { animation-delay: 0.2s; height: 60%; }
+    .bar:nth-child(3) { animation-delay: 0.4s; height: 80%; }
+    .bar:nth-child(4) { animation-delay: 0.1s; height: 40%; }
+    @keyframes sound { from { height: 20%; } to { height: 100%; } }
+
+    .map-wrap { border-radius: var(--radius); overflow: hidden; position: absolute; inset: 0; }
+    .map-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: 0.3s; }
+    .tile:hover .map-img { opacity: 1; }
+    .radar-dot { width: 12px; height: 12px; background: #007aff; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 0 2px white; z-index: 2; }
+    .radar-wave { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: rgba(0, 122, 255, 0.4); border-radius: 50%; animation: pulse 2s infinite; z-index: 1; }
+    @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(5); opacity: 0; } }
+    
+    .weather-main { text-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+    .temp-big { font-size: 3.2rem; font-weight: 300; letter-spacing: -2px; line-height: 1; }
+
+    .insta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; height: 100%; align-content: center; }
+    .insta-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; transition: 0.2s; }
+    
+    .link-stack { display: flex; flex-direction: column; gap: 6px; }
+    .link-item { font-size: 0.8rem; padding: 8px 12px; background: rgba(255,255,255,0.4); border-radius: 8px; font-weight: 500; display: flex; justify-content: space-between; transition: 0.2s background; }
+    .link-item:hover { background: rgba(255,255,255,0.6); }
+    [data-theme="dark"] .link-item { background: rgba(255,255,255,0.1); }
+    [data-theme="dark"] .link-item:hover { background: rgba(255,255,255,0.2); }
+
+    /* EDITOR STYLES */
+    .app-btn { background: #eff1f5; color: var(--accent); border-radius: 20px; padding: 6px 14px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border: none; letter-spacing: 0.5px; cursor: pointer; }
+    [data-theme="dark"] .app-btn { background: rgba(255,255,255,0.15); color: white; }
+    
+    .editor-input, .editor-select, .cmd-input {
+        background: rgba(120,120,120,0.1); border: none; padding: 14px; border-radius: 12px;
+        color: var(--text-primary); font-family: var(--font-ui); font-size: 1rem; width: 100%; outline: none; transition: 0.2s;
+    }
+    .editor-input:focus { background: rgba(120,120,120,0.15); box-shadow: 0 0 0 2px var(--accent); }
+    .editor-card { background: rgba(255,255,255,0.5); padding: 16px; border-radius: 16px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.05); }
+    [data-theme="dark"] .editor-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); }
+
+    /* Estilos para el Editor de Bloques */
+    .block-item { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; gap: 10px; align-items: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    [data-theme="dark"] .block-item { background: rgba(255,255,255,0.1); }
+    .block-handle { cursor: grab; color: var(--text-secondary); padding-top: 12px; }
+    .block-content { flex: 1; }
+    .block-remove { color: var(--danger); background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; }
+
+    /* --- 7. SHEETS & MODALS --- */
+    .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 6000; opacity: 0; visibility: hidden; transition: 0.4s; }
+    .sheet-overlay.active { opacity: 1; visibility: visible; }
+    
+    .sheet { 
+        position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); 
+        width: 100%; max-width: 680px; height: 85vh; 
+        background: var(--modal-bg); 
+        backdrop-filter: saturate(180%) blur(40px);
+        -webkit-backdrop-filter: saturate(180%) blur(40px);
+        border-radius: 30px 30px 0 0; 
+        display: flex; flex-direction: column; 
+        transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1); 
+        box-shadow: var(--shadow-float); 
+        border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    .sheet-overlay.active .sheet { transform: translateX(-50%) translateY(0); }
+    
+    .sheet-header { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .sheet-content { flex: 1; overflow-y: auto; padding: 24px; -webkit-overflow-scrolling: touch; }
+
+    /* Cmd+K Overlay */
+    .cmd-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); z-index: 7000; display: flex; justify-content: center; padding-top: 20vh; opacity: 0; visibility: hidden; transition: 0.2s; }
+    .cmd-overlay.active { opacity: 1; visibility: visible; }
+    [data-theme="dark"] .cmd-overlay { background: rgba(0,0,0,0.85); }
+    .cmd-box { width: 100%; max-width: 500px; padding: 20px; }
+    .cmd-item { padding: 15px; border-bottom: 1px solid rgba(120,120,120,0.1); cursor: pointer; display: flex; justify-content: space-between; font-size: 1.1rem; }
+    .cmd-item:hover { background: rgba(120,120,120,0.05); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .tile { grid-column: span 1; }
+        .tile.wide { grid-column: span 2; }
+        .tile.tall { grid-column: span 1; grid-row: span 2; }
+        .temp-big { font-size: 2.5rem; }
+        .sheet { height: 92vh; }
+    }
+    </style>
+</head>
+<body>
+
+<!-- FX Layers -->
+<div id="intro-overlay"></div>
+<div class="mesh"></div>
+
+<!-- Command Palette -->
+<div class="cmd-overlay" id="cmd-overlay" onclick="if(event.target===this) toggleCmd()">
+    <div class="cmd-box">
+        <input class="cmd-input" id="cmd-input" placeholder="¿Qué buscas? (Escribe 'Diseño', 'Contacto'...)">
+        <div class="cmd-list" id="cmd-list" style="margin-top:20px"></div>
+    </div>
+</div>
+
+<!-- NAVEGACIÓN FIJA (ADMIN BAR) -->
+<div id="admin-menubar">
+    <div class="menubar-group">
+        <span class="menubar-brand">Javi Barbero</span>
+        </div>
+    
+    <div class="menubar-group">
+        <div id="admin-actions" style="display:none; gap:5px">
+            <button class="menubar-btn primary" onclick="openEditor(null)">+ Nuevo</button>
+            <button class="menubar-btn" onclick="openGlobalSettings()">⚙️</button>
+            <button class="menubar-btn" onclick="exportData()">💾 JSON</button>
+            <button class="menubar-btn" onclick="toggleAdmin()" style="color:var(--danger)">Salir</button>
+        </div>
+        <button class="menubar-btn" onclick="toggleAdmin()" id="btn-login">Login</button>
+    </div>
+</div>
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="container">
+    <header>
+        <div class="header-top">
+            <div class="profile" onclick="playSound('pop')">
+                <div class="avatar"></div>
+                <div class="titles">
+                    <h1>Javier Barbero</h1>
+                    <p>Digital Product Designer</p>
+                </div>
+            </div>
+            <div class="header-actions" style="display:flex; gap:10px">
+                <button class="icon-btn" onclick="toggleTheme(); playSound('switch')" title="Tema (T)">🌗</button>
+                <button class="icon-btn" onclick="toggleCmd(); playSound('click')" title="Buscar (Cmd+K)">🔍</button>
+            </div>
+        </div>
+       
+        <div class="filters">
+            <button class="pill active" onclick="filterGrid('all', this)">Todo</button>
+            <button class="pill" onclick="filterGrid('design', this)">Diseño</button>
+            <button class="pill" onclick="filterGrid('code', this)">Código</button>
+            <button class="pill" onclick="filterGrid('life', this)">Lifestyle</button>
+        </div>
+    </header>
+
+    <div class="grid" id="grid">
+        <!-- Widgets renderizados por JS -->
+    </div>
+</div>
+
+<!-- HOJA DE DETALLE / EDITOR -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()">
+    <div class="sheet" id="sheet-main" onclick="event.stopPropagation()">
+        <div class="sheet-header" id="sheet-header">
+            <h3 id="sheet-title" style="font-size:1.1rem; font-weight:700">Detalle</h3>
+            <div style="display:flex; gap:10px">
+                <button class="icon-btn" id="share-btn" onclick="shareContent()" style="width:32px; height:32px; font-size:0.9rem">📤</button>
+                <button class="icon-btn" onclick="closeSheet()" style="width:32px; height:32px; font-size:0.9rem; background:rgba(120,120,120,0.1); color:var(--text-secondary)">✕</button>
+            </div>
+        </div>
+        <div class="sheet-content" id="sheet-body"></div>
+    </div>
+</div>
+
+<script>
+/**
+ * 🚀 PORTFOLIO ULTIMATE v19 (iOS + Blocks + AppStore Fix + Linktree Fix)
+ */
+
+// --- STATE & CONFIG ---
+const state = {
+    projects: [],
+    isAdmin: false,
+    filter: 'all',
+    theme: 'light',
+    config: {
+        showHelp: true,
+        helpTitle: "Bienvenido",
+        helpContent: `<div style="text-align:center; padding:20px">
+            <div style="font-size:3rem; margin-bottom:10px">👋</div>
+            <p>Bienvenido a mi espacio digital.</p>
+            <p style="color:var(--text-secondary); margin-top:10px">Usa <strong>Cmd+K</strong> para buscar cualquier cosa.</p>
+        </div>`
+    }
+};
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+// --- WIDGET DEFINITIONS ---
+const WIDGETS = {
+    standard: { 
+        label: "Proyecto Detallado (Addon)", 
+        desc: "Proyecto completo con capacidad para añadir bloques de texto e imágenes infinitos.", 
+        fields: [] 
+    },
+    
+    spotify: { 
+        label: "Spotify Playing", 
+        desc: "Muestra canción actual con animación.", 
+        fields: ['songTitle', 'artist', 'coverUrl', 'spotifyUrl'], 
+        placeholder: { songTitle: "Bohemian Rhapsody", artist: "Queen", coverUrl: "https://i.scdn.co/image/...", spotifyUrl: "Link a la canción" } 
+    },
+    map: { 
+        label: "Ubicación / Mapa", 
+        desc: "Mapa estático con radar animado.", 
+        fields: ['locationName', 'mapImageUrl', 'mapsLink'], 
+        placeholder: { locationName: "Madrid", mapImageUrl: "URL Imagen Mapa", mapsLink: "https://maps.google..." },
+        helper: "Sube una captura cuadrada bonita del mapa."
+    },
+    gear: { 
+        label: "Setup / Gear", 
+        desc: "Lista de equipo.", 
+        fields: ['gearList'], 
+        placeholder: { gearList: "MacBook Pro M1|Apple, MX Master 3|Logitech" },
+        helper: "Formato: Producto | Marca (Separar con comas)" 
+    },
+    instagram: { 
+        label: "Instagram Grid", 
+        desc: "Últimas 4 fotos cuadradas.", 
+        fields: ['instaImages', 'profileUrl'], 
+        placeholder: { instaImages: "URL1, URL2, URL3, URL4" },
+        helper: "4 URLs de imagen separadas por comas." 
+    },
+    linktree: { 
+        label: "Linktree Mini", 
+        desc: "Lista de enlaces.", 
+        fields: ['links'], 
+        placeholder: { links: "Twitter|url, LinkedIn|url" }
+    },
+    color: { 
+        label: "Color del Día", 
+        desc: "Color HEX grande.", 
+        fields: ['colorHex', 'colorName']
+    },
+    weather: { 
+        label: "El Tiempo", 
+        desc: "Widget clima estético.", 
+        fields: ['city', 'temp', 'condition', 'bgGradient'], 
+        placeholder: { city: "Santander", temp: "18°", condition: "Nublado", bgGradient: "linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)" }
+    },
+    appstore: { label: "App Store", desc: "Estilo App iOS.", fields: ['appIcon', 'appName', 'appDesc', 'appPrice', 'appUrl'] },
+    skills: { label: "Habilidades", desc: "Lista %.", fields: ['skills'], helper: "Figma:90, HTML:80" },
+    fitness: { label: "Fitness", desc: "Anillos actividad.", fields: ['move', 'exercise', 'stand'] },
+    clock: { label: "Reloj", desc: "Hora mundial.", fields: ['timezone', 'city'] },
+    code: { label: "Snippet", desc: "Bloque código.", fields: ['code', 'language'] },
+    status: { label: "Estado", desc: "Semáforo disponibilidad.", fields: ['statusText', 'statusColor'] },
+    cv: { label: "CV Botón", desc: "Descarga PDF.", fields: ['fileUrl', 'btnText'] },
+    experience: { label: "Experiencia", desc: "Timeline.", fields: ['exp'] },
+    education: { label: "Educación", desc: "Timeline.", fields: ['edu'] },
+    palette: { label: "Paleta", desc: "Colores.", fields: ['colors'] },
+    contacts: { label: "Contacto", desc: "Lista datos.", fields: ['contacts'] }
+};
+
+// --- DEFAULT DATA ---
+// 👇👇👇 COMIENZO DE DATOS (REEMPLAZA DESDE AQUÍ) 👇👇👇
+const defaultData = [
+    {
+        "id": 1766170457840,
+        "title": "Redes Sociales",
+        "desc": "",
+        "category": "life",
+        "shape": "tile",
+        "widget": "linktree",
+        "bgImage": "",
+        "url": "",
+        "custom": {
+            "links": "Instagram|https://www.instagram.com/minijbs07/,Twitter|https://x.com/minijbs07"
+        },
+        "blocks": []
+    },
+    {
+        "id": 1766170525076,
+        "title": "",
+        "desc": "",
+        "category": "life",
+        "shape": "tile",
+        "widget": "spotify",
+        "bgImage": "",
+        "url": "",
+        "custom": {
+            "songTitle": "DATA",
+            "artist": "Tainy",
+            "coverUrl": "https://i.scdn.co/image/ab67616d0000b273f885fb64a381318a1c9c14e4",
+            "spotifyUrl": "https://open.spotify.com/album/2X6WyzpxY70eUn3lnewB7d"
+        },
+        "blocks": []
+    },
+    {
+        "id": 1766168611255,
+        "title": "BUSGo!",
+        "desc": "Mi app TUS",
+        "category": "code",
+        "shape": "wide",
+        "widget": "standard",
+        "bgImage": "https://i.ibb.co/V03Wm6rZ/88-C71261-7-F61-4-FB9-9552-605-E3381-A8-F6-1-105-c.jpg",
+        "url": "",
+        "custom": {},
+        "blocks": [
+            {
+                "type": "text",
+                "content": "Mi app para consultar el transporte público en Santander ya está dfisponible!!"
+            },
+            {
+                "type": "image",
+                "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/68/9b/96/689b9697-53ea-0b74-3dde-6f5a31c174e3/Placeholder.mill/400x400bb-75.webp"
+            },
+            {
+                "type": "text",
+                "content": "Disfruta de una experiencia renovada. funcional y rápida."
+            }
+        ]
+    },
+    {
+        "id": 106,
+        "title": "BUSGo!",
+        "desc": "Travel",
+        "category": "code",
+        "shape": "wide",
+        "widget": "appstore",
+        "bgImage": "",
+        "url": "https://apps.apple.com/es/app/busgo/id6753916938",
+        "custom": {
+            "appIcon": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/68/9b/96/689b9697-53ea-0b74-3dde-6f5a31c174e3/Placeholder.mill/400x400bb-75.webp",
+            "appName": "BUSGo!",
+            "appDesc": "Travel",
+            "appPrice": "FREE",
+            "appUrl": "https://apps.apple.com/es/app/busgo/id6753916938"
+        },
+        "blocks": []
+    },
+    {
+        "id": 1766169866973,
+        "title": "SHADE (PROXIMAMENTE...)",
+        "desc": "Mi app para gestionar tu armario",
+        "category": "code",
+        "shape": "wide",
+        "widget": "standard",
+        "bgImage": "https://i.ibb.co/LhktCF6R/shademock.png",
+        "url": "",
+        "custom": {},
+        "blocks": [
+            {
+                "type": "text",
+                "content": "Próximamente, mi aplicación con IA integrada preparada para organizar tu armario, no repetir los outfits, y diversas utilidades relativas a tener menos dolores de cabeza a la hora de vestirte.\n"
+            },
+            {
+                "type": "image",
+                "url": "https://i.ibb.co/209C0VBD/fo.png"
+            }
+        ]
+    }
+];
+// 👆👆👆 FIN DE DATOS (HASTA AQUÍ) 👆👆👆
+
+// --- INIT ---
+window.onload = () => {
+    const savedProjects = localStorage.getItem('portfolio_v14');
+    state.projects = savedProjects ? JSON.parse(savedProjects) : defaultData;
+    
+    const savedConfig = localStorage.getItem('portfolio_config');
+    if(savedConfig) state.config = JSON.parse(savedConfig);
+
+    updateHelpVisibility();
+    renderGrid();
+    setupListeners();
+    checkHash();
+    startIntervals();
+};
+
+// --- CORE RENDERER ---
+function renderGrid() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+   
+    state.projects.forEach(p => {
+        if (state.filter !== 'all' && p.category !== state.filter) return;
+        
+        const tile = document.createElement('div');
+        tile.className = `tile ${p.shape || ''} ${p.widget === 'standard' && p.bgImage ? 'has-bg' : ''}`;
+        tile.id = `tile-${p.id}`;
+       
+        let innerHTML = getWidgetHTML(p);
+        
+        if(p.widget === 'standard' && p.bgImage) {
+            innerHTML += `<div class="tile-overlay"></div><img src="${p.bgImage}" class="tile-bg" onload="this.classList.add('loaded')">`;
+        }
+        
+        if(state.isAdmin) {
+            innerHTML += `<div style="position:absolute; top:10px; right:10px; z-index:100; display:flex; gap:6px;">
+                <button class="pill" style="padding:4px 10px; font-size:0.7rem; background:white; color:black; box-shadow:0 2px 5px rgba(0,0,0,0.2);" onclick="event.stopPropagation(); openEditor(${p.id})" ontouchstart="event.stopPropagation()">Edit</button>
+                <button class="pill" style="padding:4px 10px; font-size:0.7rem; background:var(--danger); color:white; box-shadow:0 2px 5px rgba(0,0,0,0.2);" onclick="event.stopPropagation(); deleteTile(${p.id})" ontouchstart="event.stopPropagation()">✕</button>
+            </div>`;
+        }
+        
+        tile.innerHTML = innerHTML;
+        tile.onclick = () => handleTileClick(p);
+        tile.onmouseenter = () => playSound('hover');
+        grid.appendChild(tile);
+    });
+}
+
+function getWidgetHTML(p) {
+    const c = p.custom || {};
+    let content = '';
+    
+    switch(p.widget) {
+        case 'spotify':
+            content = `<div class="music-card"><img src="${c.coverUrl || 'https://via.placeholder.com/60'}" class="album-art"><div class="music-info"><p style="font-size:0.7rem; color:var(--success); font-weight:700; text-transform:uppercase; margin-bottom:2px">Now Playing</p><h3 style="font-size:0.9rem; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.songTitle || 'Song'}</h3><p style="font-size:0.8rem; color:var(--text-secondary);">${c.artist || 'Artist'}</p><div class="music-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div></div>`;
+            break;
+        case 'map':
+            content = `<div class="w-full" style="height:100%; position:relative;"><div class="map-wrap"><img src="${c.mapImageUrl}" class="map-img"></div><div class="radar-dot"></div><div class="radar-wave"></div><div style="position:absolute; bottom:15px; left:15px; z-index:2; background:rgba(255,255,255,0.9); backdrop-filter:blur(10px); padding:4px 10px; border-radius:12px; font-weight:600; font-size:0.75rem; box-shadow:var(--shadow-sm); color:black;">📍 ${c.locationName}</div></div>`;
+            break;
+        case 'instagram':
+            const imgs = (c.instaImages || "").split(',');
+            content = `<div class="insta-grid">${imgs.slice(0,4).map(url => `<img src="${url.trim()}" class="insta-img">`).join('')}</div>`;
+            break;
+        case 'linktree':
+            const links = (c.links || "").split(',');
+            // FIX: Añadido onclick con stopPropagation y window.open
+            content = `<div class="w-full"><div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;"><div class="avatar" style="width:28px; height:28px;"></div><h3 style="font-size:0.95rem; font-weight:700;">Links</h3></div><div class="link-stack">${links.slice(0,3).map(l => { const [txt, url] = l.split('|'); return `<div class="link-item" onclick="event.stopPropagation(); window.open('${url ? url.trim() : '#'}', '_blank')" style="cursor:pointer"><span>${txt}</span> <span style="color:var(--text-secondary)">↗</span></div>`; }).join('')}</div></div>`;
+            break;
+        case 'gear':
+             const gearItems = (c.gearList || "").split(',');
+             content = `<div class="w-full"><h3 style="margin-bottom:12px; font-size:0.9rem;">⚙️ Setup</h3><div style="display:flex; flex-direction:column; gap:6px;">${gearItems.slice(0,3).map(g => `<div style="font-size:0.8rem; padding-bottom:4px; border-bottom:1px solid rgba(0,0,0,0.05);">${g.split('|')[0]}</div>`).join('')}${gearItems.length > 3 ? `<div style="font-size:0.7rem; color:var(--text-secondary)">+${gearItems.length-3} más...</div>` : ''}</div></div>`;
+             break;
+        case 'color':
+            content = `<div style="width:100%; height:100%; background:${c.colorHex || '#000'}; border-radius:18px; display:flex; flex-direction:column; justify-content:flex-end; padding:15px; color:white;"><h3 style="font-size:1.4rem; font-weight:700;">${c.colorName || 'Color'}</h3><div style="font-family:var(--font-mono); font-size:0.8rem; opacity:0.8; margin-top:4px;" onclick="event.stopPropagation(); copyText('${c.colorHex}')">${c.colorHex}</div></div>`;
+            break;
+        case 'weather':
+            const bg = c.bgGradient || "linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%)";
+            content = `<div class="tile-content weather-main" style="background:${bg}; margin:-24px; padding:24px; width:calc(100% + 48px); height:calc(100% + 48px); color:white; display:flex; flex-direction:column; justify-content:space-between;"><div style="display:flex; justify-content:space-between; align-items:start"><div><h3 style="font-size:1.1rem; font-weight:600">${c.city}</h3><p style="opacity:0.9; font-size:0.85rem">${c.condition}</p></div><div style="font-size:1.8rem">⛅️</div></div><div class="temp-big">${c.temp}</div></div>`;
+            break;
+        case 'appstore':
+            // Renderiza el widget en la cuadrícula (sin enlace directo aquí, se maneja al hacer clic en el tile)
+            content = `<div style="display:flex; flex-direction:column; height:100%; justify-content:space-between;"><div style="display:flex; gap:12px;"><img src="${c.appIcon}" style="width:50px; height:50px; border-radius:12px; box-shadow:var(--shadow-sm);"><div style="flex:1;"><h3 style="font-size:0.95rem; font-weight:600; margin-bottom:2px; line-height:1.2;">${c.appName || 'App Name'}</h3><p style="font-size:0.75rem; color:var(--text-secondary); line-height:1.2;">${c.appDesc || 'App'}</p></div></div><button class="app-btn">${c.appPrice || 'GET'}</button></div>`;
+            break;
+        case 'fitness':
+            const makeRing = (r, val, col) => { const circ = 2 * Math.PI * r; const off = circ - ((val/100)*circ); return `<circle cx="45" cy="45" r="${r}" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="8"/><circle cx="45" cy="45" r="${r}" fill="none" stroke="${col}" stroke-width="8" stroke-linecap="round" style="stroke-dasharray:${circ}; stroke-dashoffset:${off}; transform: rotate(-90deg); transform-origin: 50% 50%;"/>`; };
+            content = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%;"><svg width="90" height="90" viewBox="0 0 90 90">${makeRing(36, c.move||0, '#ff3b30')}${makeRing(24, c.exercise||0, '#34c759')}${makeRing(12, c.stand||0, '#007aff')}</svg><div style="margin-top:8px; font-size:0.8rem; font-weight:700; color:var(--text-secondary);">Actividad</div></div>`;
+            break;
+        case 'clock':
+            content = `<div class="live-clock" data-tz="${c.timezone||'UTC'}" style="text-align:center; display:flex; flex-direction:column; justify-content:center; height:100%;"><h3 style="color:var(--accent); font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:5px;">${c.city||'CITY'}</h3><div class="clock-time" style="font-size:2.8rem; font-weight:200; font-variant-numeric:tabular-nums; line-height:1;">00:00</div></div>`;
+            break;
+        case 'status':
+            content = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center;"><div style="width:16px; height:16px; border-radius:50%; background:${c.statusColor === 'green' ? '#34c759' : c.statusColor === 'red' ? '#ff3b30' : '#ff9f0a'}; box-shadow:0 0 0 4px rgba(0,0,0,0.05); margin-bottom:12px;"></div><h3 style="margin-bottom:4px; font-size:1rem;">${c.statusText || 'Online'}</h3><p style="font-size:0.8rem; color:var(--text-secondary);">${p.desc}</p></div>`;
+            break;
+        case 'cv':
+             content = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center;"><div style="font-size:3rem; margin-bottom:10px; filter:grayscale(1);">📄</div><h3 style="margin-bottom:10px; font-size:1rem;">${p.title}</h3><button class="pill active" style="font-size:0.8rem; padding:6px 16px;">${c.btnText || 'Descargar'}</button></div>`;
+             break;
+        case 'code':
+            content = `<div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-primary); opacity:0.8; overflow:hidden;"><span style="color:var(--text-secondary)">// ${c.language}</span><br>${c.code.split('\n').slice(0,5).map(l => l.replace(/function|const|let|var|return/g, '<span style="color:#d52a86">$&</span>')).join('<br>')}</div>`;
+            break;
+        default: // Standard
+            const headerRight = state.isAdmin ? '' : '<div style="font-size:1.2rem; opacity:0.5;">↗</div>';
+            content = `<div class="tile-content">
+                <div class="tile-header">
+                    <div class="tile-icon" style="background:rgba(255,255,255,0.9); width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">${p.icon || '✨'}</div>
+                    ${headerRight}
+                </div>
+                <div class="tile-titles">
+                    <h3>${p.title}</h3>
+                    <p>${p.desc}</p>
+                </div>
+            </div>`;
+    }
+    return content;
+}
+
+function getWidgetFullContent(p) {
+    const c = p.custom || {};
+    let html = '';
+    const mkList = (items) => (items||"").split(',').map(i => `<div style="padding:15px; border-bottom:1px solid rgba(0,0,0,0.05);">${i}</div>`).join('');
+
+    switch(p.widget) {
+        case 'spotify':
+            html = `<div style="text-align:center; padding:40px 20px;"><img src="${c.coverUrl}" style="width:260px; height:260px; border-radius:20px; box-shadow:var(--shadow-float); margin-bottom:30px; animation:spin 30s linear infinite;"><h2 style="font-size:2rem; margin-bottom:10px; line-height:1.2;">${c.songTitle}</h2><p style="font-size:1.3rem; color:var(--text-secondary); margin-bottom:30px;">${c.artist}</p><a href="${c.spotifyUrl}" target="_blank" class="pill active" style="padding:15px 40px; background:#1DB954; color:white; font-size:1.1rem; text-decoration:none;">Escuchar en Spotify</a></div>`;
+            break;
+        case 'map':
+            html = `<div style="height:60vh; width:100%; border-radius:24px; overflow:hidden; position:relative;"><img src="${c.mapImageUrl}" style="width:100%; height:100%; object-fit:cover;"><div style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); background:var(--modal-bg); padding:15px 30px; border-radius:50px; box-shadow:var(--shadow-float); text-align:center; backdrop-filter:blur(20px);"><h3 style="margin-bottom:5px;">${c.locationName}</h3><a href="${c.mapsLink}" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:700;">Ver en Google Maps ↗</a></div></div>`;
+            break;
+        case 'instagram':
+            const iImgs = (c.instaImages || "").split(',');
+            html = `<div style="padding:10px;"><div style="text-align:center; margin-bottom:30px;"><div style="font-size:3rem; margin-bottom:10px; background:linear-gradient(45deg, #f09433 0%, #dc2743 50%, #bc1888 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Instagram</div><a href="${c.profileUrl}" target="_blank" class="pill active">Seguir Perfil</a></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">${iImgs.map(url => `<img src="${url.trim()}" style="width:100%; border-radius:12px; box-shadow:var(--shadow-sm);">`).join('')}</div></div>`;
+            break;
+        case 'gear':
+            html = `<div><h2 style="margin-bottom:20px;">Mi Equipo (Setup)</h2>${mkList(c.gearList)}</div>`;
+            break;
+        // NUEVA VISTA DETALLADA PARA APP STORE QUE SÍ FUNCIONA
+        case 'appstore':
+            html = `<div style="text-align:center; padding:30px 20px;">
+                <img src="${c.appIcon}" style="width:120px; height:120px; border-radius:24px; box-shadow:var(--shadow-md); margin-bottom:20px;">
+                <h2 style="font-size:1.8rem; margin-bottom:5px; line-height:1.2;">${c.appName}</h2>
+                <p style="font-size:1rem; color:var(--text-secondary); margin-bottom:30px;">${c.appDesc}</p>
+                <a href="${c.appUrl}" target="_blank" class="pill active" style="padding:15px 40px; background:var(--accent); color:white; font-size:1.1rem; text-decoration:none; display:inline-block; border-radius:30px;">
+                    OBTENER · ${c.appPrice || 'Free'}
+                </a>
+            </div>`;
+            break;
+        default:
+            if(p.widget === 'standard') return ''; 
+            html = getWidgetHTML(p);
+    }
+    return html;
+}
+
+// --- LOGIC ---
+
+function startIntervals() {
+    setInterval(() => {
+        document.querySelectorAll('.live-clock').forEach(el => {
+            const time = new Date().toLocaleTimeString('en-US', { timeZone: el.dataset.tz, hour: '2-digit', minute: '2-digit', hour12: false });
+            el.querySelector('.clock-time').innerText = time;
+        });
+    }, 1000);
+}
+
+function handleTileClick(p) {
+    playSound('click');
+    document.getElementById(`tile-${p.id}`).classList.add('visited');
+    if(p.widget === 'cv' && p.custom.fileUrl) return window.open(p.custom.fileUrl, '_blank');
+    if(p.action === 'link' && p.url) return window.open(p.url, '_blank');
+    openSheet(p);
+}
+
+function openSheet(p) {
+    const sheet = document.getElementById('sheet-main');
+    const body = document.getElementById('sheet-body');
+    const title = document.getElementById('sheet-title');
+    
+    title.innerText = p.title;
+    
+    const fullContent = getWidgetFullContent(p);
+    
+    if (fullContent && p.widget !== 'standard') {
+        body.innerHTML = fullContent;
+    } else {
+        // Render estándar (Proyecto Detallado con Bloques)
+        let html = `<div style="max-width:680px; margin:0 auto; padding-bottom:50px;">`;
+        if(p.bgImage) html += `<img src="${p.bgImage}" style="width:100%; height:320px; object-fit:cover; border-radius:20px; margin-bottom:30px; box-shadow:var(--shadow-md);">`;
+        
+        html += `<div style="font-size:1.1rem; line-height:1.7; color:var(--text-primary);">`;
+        
+        // Renderizar bloques si existen
+        if(p.blocks && p.blocks.length > 0) {
+            p.blocks.forEach(b => {
+                if(b.type === 'text') html += `<p style="margin-bottom:24px">${b.content.replace(/\n/g, '<br>')}</p>`;
+                if(b.type === 'image') html += `<img src="${b.url}" style="width:100%; border-radius:16px; margin:24px 0; box-shadow:var(--shadow-sm);">`;
+            });
+        } else {
+            html += `<p>${p.desc}</p>`;
+        }
+        
+        if(p.url) html += `<div style="margin-top:40px; text-align:center;"><a href="${p.url}" target="_blank" class="pill active" style="padding:15px 40px; text-decoration:none;">Ver Proyecto Online</a></div>`;
+        html += `</div></div>`;
+        body.innerHTML = html;
+        document.getElementById('share-btn').style.display = 'flex';
+    }
+    
+    document.getElementById('sheet-overlay').classList.add('active');
+}
+
+function closeSheet() {
+    document.getElementById('sheet-overlay').classList.remove('active');
+}
+
+function openHelp() {
+    if(!state.config.showHelp && !state.isAdmin) return;
+    document.getElementById('sheet-title').innerText = state.config.helpTitle;
+    document.getElementById('sheet-body').innerHTML = state.config.helpContent;
+    document.getElementById('sheet-overlay').classList.add('active');
+}
+
+// --- UTILS ---
+function toggleTheme() {
+    state.theme = state.theme === 'light' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = state.theme;
+}
+
+function filterGrid(cat, el) {
+    document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+    if(el) el.classList.add('active');
+    state.filter = cat;
+    renderGrid();
+}
+
+function updateHelpVisibility() {
+    return;
+}
+
+function checkHash() {
+    const hash = window.location.hash;
+    if(hash.startsWith('#project-')) {
+        const id = parseInt(hash.replace('#project-',''));
+        const p = state.projects.find(x => x.id === id);
+        if(p) openSheet(p);
+    }
+}
+
+function playSound(type) {
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.connect(gain); gain.connect(audioContext.destination);
+    if(type==='click'){osc.frequency.value=600;gain.gain.value=0.05;osc.start();osc.stop(audioContext.currentTime+0.05);}
+    if(type==='hover'){osc.frequency.value=300;gain.gain.value=0.01;osc.start();osc.stop(audioContext.currentTime+0.03);}
+    if(type==='switch'){osc.frequency.value=400;gain.gain.value=0.05;osc.type='triangle';osc.start();osc.stop(audioContext.currentTime+0.1);}
+    if(type==='pop'){osc.frequency.value=800;gain.gain.value=0.05;osc.type='sine';osc.start();osc.stop(audioContext.currentTime+0.1);}
+}
+
+function setupListeners() {
+    document.addEventListener('keydown', (e) => {
+        if((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); toggleCmd(); }
+        if(e.key === 'Escape') { closeSheet(); document.getElementById('cmd-overlay').classList.remove('active'); }
+    });
+    document.getElementById('cmd-input').addEventListener('input', (e) => renderCmdResults(e.target.value));
+}
+
+function toggleCmd() {
+    document.getElementById('cmd-overlay').classList.toggle('active');
+    if(document.getElementById('cmd-overlay').classList.contains('active')) {
+        document.getElementById('cmd-input').focus();
+        renderCmdResults('');
+    }
+}
+
+function renderCmdResults(q) {
+    const list = document.getElementById('cmd-list');
+    list.innerHTML = '';
+    const term = q.toLowerCase();
+    
+    const system = [
+        { title: '🌙 Cambiar Tema', action: toggleTheme },
+        { title: '🆘 Abrir Ayuda', action: openHelp },
+        { title: '🔒 Admin Login', action: toggleAdmin }
+    ];
+    
+    const matches = state.projects.filter(p => p.title.toLowerCase().includes(term));
+    
+    [...system, ...matches].forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'cmd-item';
+        div.innerHTML = `<span>${item.title}</span> <span style="font-size:0.8rem; color:var(--text-secondary)">Enter</span>`;
+        div.onclick = () => { 
+            (item.action || (()=>handleTileClick(item)))(); 
+            toggleCmd(); 
+        };
+        list.appendChild(div);
+    });
+}
+function copyText(t) { navigator.clipboard.writeText(t); alert("Copiado: "+t); }
+function shareContent() { navigator.clipboard.writeText(window.location.href); alert("Enlace copiado"); }
+
+// --- ADMIN & EDITOR ---
+function toggleAdmin() {
+    if(!state.isAdmin) {
+        if(prompt("Contraseña:") === "9556") {
+            state.isAdmin = true;
+            document.getElementById('admin-actions').style.display = 'flex';
+            document.getElementById('btn-login').style.display = 'none';
+            
+            new Sortable(document.getElementById('grid'), { 
+                animation: 150, 
+                ghostClass: 'tile-ghost',
+                onEnd: (evt) => {
+                    const item = state.projects.splice(evt.oldIndex, 1)[0];
+                    state.projects.splice(evt.newIndex, 0, item);
+                    saveData();
+                }
+            });
+            renderGrid();
+            updateHelpVisibility();
+        }
+    } else {
+        state.isAdmin = false;
+        window.location.reload();
+    }
+}
+
+function saveData() { localStorage.setItem('portfolio_v14', JSON.stringify(state.projects)); }
+function deleteTile(id) { if(confirm("¿Seguro que quieres borrar este elemento?")) { state.projects = state.projects.filter(x => x.id !== id); saveData(); renderGrid(); } }
+
+// --- FUNCIÓN DE EXPORTACIÓN MEJORADA ---
+function exportData() {
+    const json = JSON.stringify(state.projects, null, 4);
+    navigator.clipboard.writeText(json);
+    
+    const html = `
+        <div style="padding-bottom:40px;">
+            <h2 style="margin-bottom:20px;">💾 Copia de Seguridad</h2>
+            
+            <div style="background:#e8f5e9; color:#2e7d32; padding:15px; border-radius:12px; margin-bottom:20px; font-size:0.9rem; border:1px solid #c8e6c9;">
+                <strong>¡Copiado al portapapeles!</strong><br>
+                Tus datos actuales (widgets, textos, imágenes) se han copiado.
+            </div>
+
+            <div class="editor-card">
+                <label style="display:block; margin-bottom:10px; font-weight:700; font-size:0.8rem; text-transform:uppercase; color:var(--text-secondary)">¿Cómo guardar los cambios para siempre?</label>
+                <ol style="font-size:0.9rem; line-height:1.6; padding-left:20px; color:var(--text-primary);">
+                    <li>Abre tu archivo <code>index.html</code> en un editor de texto.</li>
+                    <li>Busca la zona marcada como <strong>👇👇👇 COMIENZO DE DATOS</strong>.</li>
+                    <li>Borra todo lo que hay entre las flechas de inicio y fin.</li>
+                    <li>Pega (Ctrl+V / Cmd+V) el código que acabas de copiar.</li>
+                </ol>
+            </div>
+
+            <div class="editor-card">
+                <label style="display:block; margin-bottom:8px; font-weight:700; font-size:0.8rem; text-transform:uppercase; color:var(--text-secondary)">Vista previa de tus datos:</label>
+                <textarea class="editor-input" rows="8" style="font-family:monospace; font-size:0.75rem;">${json}</textarea>
+            </div>
+            
+             <button class="pill active" style="width:100%; justify-content:center; padding:16px;" onclick="closeSheet()">Entendido</button>
+        </div>
+    `;
+    
+    document.getElementById('sheet-title').innerText = "Exportar / Guardar";
+    document.getElementById('sheet-body').innerHTML = html;
+    document.getElementById('sheet-overlay').classList.add('active');
+}
+
+function openEditor(id) {
+    const p = id ? state.projects.find(x => x.id === id) : { id: Date.now(), title: 'Nuevo', widget: 'standard', custom: {} };
+    const widgetOptions = Object.keys(WIDGETS).map(k => `<option value="${k}" ${p.widget===k?'selected':''}>${WIDGETS[k].label}</option>`).join('');
+    
+    const html = `
+        <div style="padding-bottom:40px;">
+            <h2 style="margin-bottom:20px;">${id ? 'Editar Proyecto' : 'Crear Nuevo'}</h2>
+            
+            <div class="editor-card">
+                <label style="display:block; margin-bottom:8px; font-weight:700; font-size:0.8rem; text-transform:uppercase; color:var(--text-secondary)">Información Básica</label>
+                <input class="editor-input" id="ed-title" value="${p.title||''}" placeholder="Título Principal" style="margin-bottom:10px;">
+                <input class="editor-input" id="ed-desc" value="${p.desc||''}" placeholder="Subtítulo / Descripción corta">
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+                     <select class="editor-select" id="ed-cat">
+                        <option value="design" ${p.category==='design'?'selected':''}>Diseño</option>
+                        <option value="code" ${p.category==='code'?'selected':''}>Código</option>
+                        <option value="life" ${p.category==='life'?'selected':''}>Lifestyle</option>
+                     </select>
+                     <select class="editor-select" id="ed-shape">
+                        <option value="tile" ${p.shape==='tile'?'selected':''}>Cuadrado (1x1)</option>
+                        <option value="wide" ${p.shape==='wide'?'selected':''}>Ancho (2x1)</option>
+                        <option value="small" ${p.shape==='small'?'selected':''}>Pequeño (0.5x1)</option>
+                     </select>
+                </div>
+            </div>
+            
+            <div class="editor-card">
+                <label style="display:block; margin-bottom:8px; font-weight:700; font-size:0.8rem; text-transform:uppercase; color:var(--text-secondary)">Tipo de Widget</label>
+                <select class="editor-select" id="ed-widget" onchange="renderEditorFields()">${widgetOptions}</select>
+                <div id="widget-desc-box" style="margin-top:10px; font-size:0.85rem; color:var(--text-secondary); line-height:1.4;"></div>
+                <div id="ed-custom-fields" style="margin-top:15px; border-top:1px solid rgba(0,0,0,0.05); padding-top:15px;"></div>
+            </div>
+
+            <!-- EDITOR DE BLOQUES (SOLO PARA STANDARD) -->
+            <div class="editor-card" id="block-editor-container" style="display:none;">
+                <label style="display:block; margin-bottom:15px; font-weight:700; font-size:0.8rem; text-transform:uppercase; color:var(--text-secondary)">Constructor de Contenido</label>
+                
+                <div id="blocks-list"></div>
+                
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button class="pill" style="flex:1; justify-content:center;" onclick="addEditorBlock('text')">+ Añadir Texto</button>
+                    <button class="pill" style="flex:1; justify-content:center;" onclick="addEditorBlock('image')">+ Añadir Imagen</button>
+                </div>
+            </div>
+            
+             <div class="editor-card" id="project-options">
+                <label style="display:block; margin-bottom:8px; font-weight:700; font-size:0.8rem; text-transform:uppercase; color:var(--text-secondary)">Multimedia & Enlaces</label>
+                <input class="editor-input" id="ed-bg" value="${p.bgImage||''}" placeholder="URL Imagen Fondo (https://...)">
+                <input class="editor-input" id="ed-url" value="${p.url||''}" placeholder="URL Externa (Link al hacer click)" style="margin-top:10px;">
+            </div>
+            
+            <button class="pill active" style="width:100%; justify-content:center; padding:16px; font-size:1rem;" onclick="saveProject(${p.id})">Guardar Cambios</button>
+        </div>
+    `;
+    
+    document.getElementById('sheet-title').innerText = "Editor";
+    document.getElementById('sheet-body').innerHTML = html;
+    document.getElementById('sheet-overlay').classList.add('active');
+    
+    // Función para añadir bloques al DOM
+    window.addEditorBlock = (type, value = '') => {
+        const div = document.createElement('div');
+        div.className = 'block-item';
+        div.dataset.type = type;
+        
+        let inputHtml = '';
+        if(type === 'text') {
+            inputHtml = `<textarea class="editor-input block-input" rows="3" placeholder="Escribe aquí tu párrafo...">${value}</textarea>`;
+        } else {
+            inputHtml = `<input class="editor-input block-input" value="${value}" placeholder="URL de la imagen (https://...)">`;
+        }
+        
+        div.innerHTML = `
+            <div class="block-handle">☰</div>
+            <div class="block-content">
+                <div style="font-size:0.7rem; color:var(--accent); margin-bottom:4px; text-transform:uppercase; font-weight:700;">${type === 'text' ? 'Párrafo' : 'Imagen'}</div>
+                ${inputHtml}
+            </div>
+            <button class="block-remove" onclick="this.parentElement.remove()">×</button>
+        `;
+        document.getElementById('blocks-list').appendChild(div);
+    };
+
+    window.renderEditorFields = () => {
+        const type = document.getElementById('ed-widget').value;
+        const conf = WIDGETS[type];
+        document.getElementById('widget-desc-box').innerHTML = `<strong>${conf.label}:</strong> ${conf.desc}`;
+        
+        // Render Custom Fields
+        let fieldsHtml = '';
+        if(conf.helper) fieldsHtml += `<div style="background:rgba(0,122,255,0.1); color:var(--accent); padding:10px; border-radius:8px; font-size:0.8rem; margin-bottom:15px;">💡 ${conf.helper}</div>`;
+        if(conf.fields) {
+            conf.fields.forEach(f => {
+                const placeholder = (conf.placeholder && conf.placeholder[f]) ? conf.placeholder[f] : '';
+                const label = f.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                fieldsHtml += `<div style="margin-bottom:12px"><label style="font-size:0.75rem; opacity:0.6; margin-bottom:4px; display:block;">${label}</label><input class="editor-input custom-field-input" data-key="${f}" value="${(p.custom||{})[f]||''}" placeholder="${placeholder}"></div>`;
+            });
+        }
+        document.getElementById('ed-custom-fields').innerHTML = fieldsHtml || '<div style="opacity:0.5; font-size:0.9rem;">Este widget no requiere configuración extra.</div>';
+        
+        // Toggle Block Editor
+        const isStandard = type === 'standard';
+        document.getElementById('block-editor-container').style.display = isStandard ? 'block' : 'none';
+        document.getElementById('project-options').style.display = isStandard ? 'block' : 'block'; // Mostrar siempre por si acaso
+        
+        // Load existing blocks if standard
+        const list = document.getElementById('blocks-list');
+        list.innerHTML = ''; // Clear first
+        if(isStandard && p.blocks && p.blocks.length > 0) {
+            p.blocks.forEach(b => window.addEditorBlock(b.type, b.type === 'text' ? b.content : b.url));
+        }
+        
+        // Habilitar Sortable para los bloques
+        if(isStandard) {
+             new Sortable(list, { handle: '.block-handle', animation: 150 });
+        }
+    };
+    
+    window.renderEditorFields();
+}
+
+function saveProject(id) {
+    const isNew = !state.projects.find(x => x.id === id);
+    const custom = {};
+    document.querySelectorAll('.custom-field-input').forEach(i => custom[i.dataset.key] = i.value);
+    
+    // Guardar Bloques
+    const blocks = [];
+    document.querySelectorAll('.block-item').forEach(el => {
+        const type = el.dataset.type;
+        const val = el.querySelector('.block-input').value;
+        if(val.trim()) {
+            if(type === 'text') blocks.push({ type: 'text', content: val });
+            else blocks.push({ type: 'image', url: val });
+        }
+    });
+
+    const newData = {
+        id: id,
+        title: document.getElementById('ed-title').value,
+        desc: document.getElementById('ed-desc').value,
+        category: document.getElementById('ed-cat').value,
+        shape: document.getElementById('ed-shape').value,
+        widget: document.getElementById('ed-widget').value,
+        bgImage: document.getElementById('ed-bg').value,
+        url: document.getElementById('ed-url').value,
+        custom: custom,
+        blocks: blocks
+    };
+    
+    if(isNew) state.projects.push(newData);
+    else { const idx = state.projects.findIndex(x => x.id === id); state.projects[idx] = newData; }
+    
+    saveData(); 
+    closeSheet(); 
+    renderGrid();
+}
+
+function openGlobalSettings() {
+    const html = `
+        <div style="padding-bottom:40px;">
+            <h2 style="margin-bottom:20px;">Ajustes Globales</h2>
+            
+            <div class="editor-card">
+                <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                    <span style="font-weight:600;">Mostrar botón de Ayuda</span>
+                    <input type="checkbox" id="cfg-showHelp" ${state.config.showHelp ? 'checked' : ''} style="width:20px; height:20px;">
+                </label>
+                <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px;">Si se desactiva, solo el administrador verá el botón.</p>
+            </div>
+
+            <div class="editor-card">
+                <label style="display:block; margin-bottom:8px; font-weight:700; font-size:0.8rem; text-transform:uppercase; color:var(--text-secondary)">Contenido Ventana Ayuda</label>
+                <input class="editor-input" id="cfg-helpTitle" value="${state.config.helpTitle}" placeholder="Título (ej: Hola)" style="margin-bottom:10px;">
+                <textarea class="editor-input" id="cfg-helpContent" rows="6" placeholder="HTML permitido (<p>, <b>, etc)">${state.config.helpContent}</textarea>
+            </div>
+
+            <button class="pill active" style="width:100%; justify-content:center; padding:16px;" onclick="saveGlobalSettings()">Guardar Configuración</button>
+        </div>
+    `;
+    document.getElementById('sheet-title').innerText = "Ajustes";
+    document.getElementById('sheet-body').innerHTML = html;
+    document.getElementById('sheet-overlay').classList.add('active');
+}
+
+function saveGlobalSettings() {
+    state.config.showHelp = document.getElementById('cfg-showHelp').checked;
+    state.config.helpTitle = document.getElementById('cfg-helpTitle').value;
+    state.config.helpContent = document.getElementById('cfg-helpContent').value;
+    
+    localStorage.setItem('portfolio_config', JSON.stringify(state.config));
+    updateHelpVisibility();
+    alert("Configuración guardada correctamente");
+    closeSheet();
+}
+
+</script>
+</body>
+</html>
