@@ -1,676 +1,2274 @@
 <!DOCTYPE html>
 <html lang="es" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Javi Barbero | Portfolio</title>
+    <title>Javier Barbero | Portfolio</title>
     <meta name="theme-color" content="#f2f2f7">
-   
+
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     <style>
-    /* --- 1. CORE VARIABLES (iOS SYSTEM) --- */
-    :root {
-        --bg-color: #f2f2f7;
-        --modal-bg: rgba(255, 255, 255, 0.92);
-        --bar-bg: rgba(255, 255, 255, 0.75);
-        
-        /* El secreto de iOS: Transparencia + Saturación + Blur */
-        --tile-bg: rgba(255, 255, 255, 0.65); 
-        --tile-border: rgba(255, 255, 255, 0.4);
-        
-        --text-primary: #000000;
-        --text-secondary: #8a8a8e;
-        
-        --accent: #007aff; /* System Blue */
-        --danger: #ff3b30;
-        --success: #34c759;
-        --warning: #ff9f0a;
-        
-        /* Sombras Apple-like */
-        --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
-        --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
-        --shadow-float: 0 20px 40px -10px rgba(0,0,0,0.15);
-        
-        --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-        --font-mono: "SF Mono", "Menlo", monospace;
-        
-        --radius: 22px; /* Radio estándar de widgets iOS 16+ */
-        --radius-sm: 14px;
-        --header-height: 54px;
-    }
+        /* Apple-Style Intro Animation */
+        #intro-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.2s ease 0.2s;
+        }
 
-    [data-theme="dark"] {
-        --bg-color: #000000;
-        --modal-bg: rgba(28, 28, 30, 0.92);
-        --bar-bg: rgba(28, 28, 30, 0.75);
-        --tile-bg: rgba(44, 44, 46, 0.6);
-        --tile-border: rgba(255, 255, 255, 0.1);
-        --text-primary: #ffffff;
-        --text-secondary: #98989d;
-        --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
-    }
+        #intro-overlay.done {
+            opacity: 0;
+            pointer-events: none;
+        }
 
-    /* --- 2. GLOBAL RESET & UTILS --- */
-    * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
-    body { font-family: var(--font-ui); background-color: var(--bg-color); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; letter-spacing: -0.015em; padding-top: var(--header-height); }
-    
-    /* Fondo con Mesh Gradient sutil */
-    .mesh { position: fixed; inset: 0; z-index: -1; opacity: 0.5; background: radial-gradient(circle at 15% 15%, rgba(0,122,255,0.12), transparent 60%), radial-gradient(circle at 85% 85%, rgba(255,59,48,0.08), transparent 60%); filter: blur(80px); pointer-events: none; }
+        #intro-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            transform: scale(1.1);
+            animation: introZoom 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
-    /* --- 3. TOP NAVIGATION BAR (Fixed & Glass) --- */
-    #admin-menubar {
-        position: fixed; top: 0; left: 0; right: 0; height: var(--header-height);
-        background: var(--bar-bg);
-        backdrop-filter: saturate(180%) blur(20px);
-        -webkit-backdrop-filter: saturate(180%) blur(20px);
-        border-bottom: 0.5px solid rgba(0,0,0,0.1);
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 0 20px; z-index: 5000;
-        transition: 0.3s;
-    }
-    .menubar-group { display: flex; align-items: center; gap: 8px; }
-    
-    .menubar-btn {
-        background: transparent; border: none; color: var(--accent);
-        font-family: var(--font-ui); font-size: 0.9rem; font-weight: 500;
-        padding: 6px 10px; cursor: pointer; border-radius: 8px;
-        transition: background 0.2s, transform 0.1s;
-    }
-    .menubar-btn:hover { background: rgba(120,120,120,0.1); }
-    .menubar-btn:active { transform: scale(0.96); }
-    .menubar-btn.primary { font-weight: 600; background: rgba(0,122,255,0.1); }
-    .menubar-brand { font-weight: 700; color: var(--text-primary); font-size: 0.95rem; margin-right: 10px; cursor: default; }
+        #intro-logo .avatar-xl {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-image: url('ft.jpeg');
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 20px 60px rgba(255, 90, 0, 0.3);
+        }
 
-    /* --- 4. LAYOUT --- */
-    .container { width: 100%; max-width: 1000px; margin: 0 auto; padding: 40px 20px 140px; }
-    
-    /* Header Profile & Filters */
-    header { margin-bottom: 30px; }
-    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    .profile { display: flex; align-items: center; gap: 16px; cursor: pointer; transition: 0.2s; }
-    .profile:active { opacity: 0.6; }
-    
-    /* AVATAR */
-    .avatar { 
-        width: 64px; height: 64px; border-radius: 50%; 
-        box-shadow: var(--shadow-sm); 
-        background-color: #ddd; 
-        background-image: url('ft.jpeg'); 
-        background-size: cover; 
-        background-position: center; 
-    }
-    
-    .titles h1 { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; }
-    .titles p { font-size: 0.95rem; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }
-    
-    .icon-btn { width: 42px; height: 42px; border-radius: 50%; background: var(--tile-bg); backdrop-filter: blur(10px); border: none; font-size: 1.1rem; cursor: pointer; color: var(--accent); box-shadow: var(--shadow-sm); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-    .icon-btn:active { transform: scale(0.92); filter: brightness(0.9); }
+        #intro-logo h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
 
-    /* Filter Pills */
-    .filters { display: flex; gap: 10px; overflow-x: auto; padding: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin-left: -4px; }
-    .pill { border: none; background: rgba(120,120,120,0.08); color: var(--text-secondary); padding: 8px 18px; border-radius: 20px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: 0.3s; white-space: nowrap; }
-    .pill:hover { background: rgba(120,120,120,0.15); }
-    .pill.active { background: var(--text-primary); color: var(--bg-color); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        #intro-logo p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
 
-    /* --- 5. GRID SYSTEM --- */
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 170px; gap: 18px; padding: 10px 0; }
-    
-    .tile { 
-        grid-column: span 2; grid-row: span 1; position: relative; 
-        background: var(--tile-bg);
-        backdrop-filter: saturate(180%) blur(20px);
-        -webkit-backdrop-filter: saturate(180%) blur(20px);
-        border: 1px solid var(--tile-border);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow-sm);
-        padding: 22px; cursor: pointer; overflow: hidden;
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s;
-        display: flex; flex-direction: column; justify-content: space-between;
-    }
-    
-    .tile:hover { z-index: 10; transform: scale(1.025); box-shadow: var(--shadow-float); border-color: rgba(255,255,255,0.5); }
-    .tile:active { transform: scale(0.96); transition: 0.15s; }
-    .tile.visited { opacity: 0.9; }
-    
-    .tile.small { grid-column: span 1; }
-    .tile.wide { grid-column: span 4; }
-    .tile.tall { grid-column: span 2; grid-row: span 2; }
-    
-    /* Standard Content */
-    .tile-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-    .tile-icon { font-size: 1.8rem; }
-    .tile-titles h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 2px; color: var(--text-primary); line-height: 1.2; }
-    .tile-titles p { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; line-height: 1.35; }
-    
-    /* Background Images */
-    .tile.has-bg { border: none; }
-    .tile.has-bg .tile-titles h3, .tile.has-bg .tile-titles p { color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
-    .tile-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; transition: transform 0.6s; }
-    .tile:hover .tile-bg { transform: scale(1.08); }
-    .tile-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.5) 10%, transparent 80%); z-index: 0; pointer-events: none; }
-    .tile-content { z-index: 1; position: relative; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        @keyframes introZoom {
+            from {
+                transform: scale(1.15);
+                opacity: 0;
+            }
 
-    /* --- 6. WIDGET STYLES --- */
-    .music-card { display: flex; align-items: center; gap: 14px; height: 100%; }
-    .album-art { width: 56px; height: 56px; border-radius: 10px; box-shadow: var(--shadow-sm); object-fit: cover; }
-    .music-info { flex: 1; min-width: 0; }
-    .music-bars { display: flex; gap: 3px; align-items: flex-end; height: 12px; margin-top: 6px; }
-    .bar { width: 3px; background: var(--accent); border-radius: 2px; animation: sound 0.8s infinite ease-in-out alternate; }
-    .bar:nth-child(2) { animation-delay: 0.2s; height: 60%; }
-    .bar:nth-child(3) { animation-delay: 0.4s; height: 80%; }
-    .bar:nth-child(4) { animation-delay: 0.1s; height: 40%; }
-    @keyframes sound { from { height: 20%; } to { height: 100%; } }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
 
-    .map-wrap { border-radius: var(--radius); overflow: hidden; position: absolute; inset: 0; }
-    .map-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: 0.3s; }
-    .tile:hover .map-img { opacity: 1; }
-    .radar-dot { width: 12px; height: 12px; background: #007aff; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 0 2px white; z-index: 2; }
-    .radar-wave { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: rgba(0, 122, 255, 0.4); border-radius: 50%; animation: pulse 2s infinite; z-index: 1; }
-    @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(5); opacity: 0; } }
-    
-    .weather-main { text-shadow: 0 1px 3px rgba(0,0,0,0.15); }
-    .temp-big { font-size: 3.2rem; font-weight: 300; letter-spacing: -2px; line-height: 1; }
+        @keyframes contentReveal {
+            from {
+                transform: scale(1.05);
+                opacity: 0;
+            }
 
-    .insta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; height: 100%; align-content: center; }
-    .insta-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; transition: 0.2s; }
-    
-    .link-stack { display: flex; flex-direction: column; gap: 6px; }
-    .link-item { font-size: 0.8rem; padding: 8px 12px; background: rgba(255,255,255,0.4); border-radius: 8px; font-weight: 500; display: flex; justify-content: space-between; transition: 0.2s background; }
-    .link-item:hover { background: rgba(255,255,255,0.6); }
-    [data-theme="dark"] .link-item { background: rgba(255,255,255,0.1); }
-    [data-theme="dark"] .link-item:hover { background: rgba(255,255,255,0.2); }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
 
-    /* EDITOR STYLES */
-    .app-btn { background: #eff1f5; color: var(--accent); border-radius: 20px; padding: 6px 14px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border: none; letter-spacing: 0.5px; cursor: pointer; }
-    [data-theme="dark"] .app-btn { background: rgba(255,255,255,0.15); color: white; }
-    
-    .editor-input, .editor-select, .cmd-input {
-        background: rgba(120,120,120,0.1); border: none; padding: 14px; border-radius: 12px;
-        color: var(--text-primary); font-family: var(--font-ui); font-size: 1rem; width: 100%; outline: none; transition: 0.2s;
-    }
-    .editor-input:focus { background: rgba(120,120,120,0.15); box-shadow: 0 0 0 2px var(--accent); }
-    .editor-card { background: rgba(255,255,255,0.5); padding: 16px; border-radius: 16px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.05); }
-    [data-theme="dark"] .editor-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); }
+        .container {
+            /* Removed contentReveal animation to prevent profile visibility issues */
+            opacity: 1;
+        }
 
-    /* Estilos para el Editor de Bloques */
-    .block-item { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; gap: 10px; align-items: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    [data-theme="dark"] .block-item { background: rgba(255,255,255,0.1); }
-    .block-handle { cursor: grab; color: var(--text-secondary); padding-top: 12px; }
-    .block-content { flex: 1; }
-    .block-remove { color: var(--danger); background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; }
+        /* Magic Portada */
+        .portada-section {
+            width: 100%;
+            height: 90vh;
+            position: relative;
+            margin-bottom: 48px;
+            overflow: hidden;
+            border-radius: 0;
+            background: #000;
+            box-shadow: none;
+            will-change: transform;
+            cursor: pointer;
+        }
 
-    /* --- 7. SHEETS & MODALS --- */
-    .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 6000; opacity: 0; visibility: hidden; transition: 0.4s; }
-    .sheet-overlay.active { opacity: 1; visibility: visible; }
-    
-    .sheet { 
-        position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%); 
-        width: 100%; max-width: 680px; height: 85vh; 
-        background: var(--modal-bg); 
-        backdrop-filter: saturate(180%) blur(40px);
-        -webkit-backdrop-filter: saturate(180%) blur(40px);
-        border-radius: 30px 30px 0 0; 
-        display: flex; flex-direction: column; 
-        transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1); 
-        box-shadow: var(--shadow-float); 
-        border-top: 1px solid rgba(255,255,255,0.2);
-    }
-    .sheet-overlay.active .sheet { transform: translateX(-50%) translateY(0); }
-    
-    .sheet-header { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
-    .sheet-content { flex: 1; overflow-y: auto; padding: 24px; -webkit-overflow-scrolling: touch; }
+        .portada-section::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top,
+                    rgba(0, 0, 0, 0.85) 0%,
+                    rgba(0, 0, 0, 0.3) 40%,
+                    transparent 100%);
+            z-index: 5;
+            pointer-events: none;
+        }
 
-    /* Cmd+K Overlay */
-    .cmd-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); z-index: 7000; display: flex; justify-content: center; padding-top: 20vh; opacity: 0; visibility: hidden; transition: 0.2s; }
-    .cmd-overlay.active { opacity: 1; visibility: visible; }
-    [data-theme="dark"] .cmd-overlay { background: rgba(0,0,0,0.85); }
-    .cmd-box { width: 100%; max-width: 500px; padding: 20px; }
-    .cmd-item { padding: 15px; border-bottom: 1px solid rgba(120,120,120,0.1); cursor: pointer; display: flex; justify-content: space-between; font-size: 1.1rem; }
-    .cmd-item:hover { background: rgba(120,120,120,0.05); }
+        .portada-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.85;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-        .tile { grid-column: span 1; }
-        .tile.wide { grid-column: span 2; }
-        .tile.tall { grid-column: span 1; grid-row: span 2; }
-        .temp-big { font-size: 2.5rem; }
-        .sheet { height: 92vh; }
-    }
+        .portada-content {
+            position: absolute;
+            bottom: 8%;
+            left: 8%;
+            right: 8%;
+            z-index: 20;
+            color: white;
+            pointer-events: auto;
+        }
+
+        .portada-title {
+            font-size: clamp(2.8rem, 8vw, 6rem);
+            font-weight: 900;
+            letter-spacing: -3px;
+            line-height: 0.92;
+            margin-bottom: 16px;
+            text-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Profile Floating Island */
+        .profile-float {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-150%);
+            background: var(--modal-bg);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid var(--tile-border);
+            padding: 8px 16px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow-md);
+            z-index: 2000;
+            transition: all 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            cursor: pointer;
+        }
+
+        .profile-float.active {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .profile-float .avatar {
+            width: 32px;
+            height: 32px;
+        }
+
+        .profile-float h2 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        :root {
+            --bg-color: #f2f2f7;
+            --modal-bg: rgba(255, 255, 255, 0.94);
+            --bar-bg: rgba(255, 255, 255, 0.8);
+
+            --tile-bg: rgba(255, 255, 255, 0.7);
+            --tile-border: rgba(255, 255, 255, 0.5);
+            --tile-glow: rgba(255, 59, 48, 0.12);
+            /* Warm Red/Orange glow */
+
+            --text-primary: #000000;
+            --text-secondary: #8a8a8e;
+
+            --accent: #ff3b30;
+            --accent-orange: #ff9500;
+            --accent-red: #ff3b30;
+
+            --mesh-vibrant: radial-gradient(at 0% 0%, #ff9500 0%, transparent 60%),
+                radial-gradient(at 100% 0%, #ff3b30 0%, transparent 60%),
+                radial-gradient(at 100% 100%, #ffffff 0%, transparent 60%),
+                radial-gradient(at 0% 100%, #ff8a80 0%, transparent 60%);
+
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.08);
+            --shadow-float: 0 25px 60px -15px rgba(0, 0, 0, 0.18);
+
+            --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+            --font-mono: "SF Mono", "Menlo", monospace;
+
+            --radius: 24px;
+            --radius-sm: 16px;
+            --header-height: 64px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --modal-bg: rgba(28, 28, 30, 0.94);
+            --bar-bg: rgba(20, 20, 20, 0.8);
+            --tile-bg: rgba(30, 30, 32, 0.7);
+            --tile-border: rgba(255, 255, 255, 0.08);
+            --tile-glow: rgba(255, 149, 0, 0.1);
+            /* Warm Orange glow in dark mode */
+            --text-primary: #ffffff;
+            --text-secondary: #98989d;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        /* --- 2. GLOBAL RESET & UTILS --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            letter-spacing: -0.015em;
+            padding-top: var(--header-height);
+        }
+
+        /* Fondo con Mesh Gradient sutil */
+        @keyframes mesh-animation {
+            0% {
+                transform: scale(1) translate(0, 0);
+            }
+
+            33% {
+                transform: scale(1.1) translate(3%, 2%);
+            }
+
+            66% {
+                transform: scale(0.9) translate(-2%, 4%);
+            }
+
+            100% {
+                transform: scale(1) translate(0, 0);
+            }
+        }
+
+        .mesh {
+            position: fixed;
+            inset: -10%;
+            z-index: -1;
+            background: var(--mesh-vibrant);
+            filter: blur(60px);
+            opacity: 0.35;
+            pointer-events: none;
+            animation: mesh-animation 12s infinite alternate ease-in-out;
+            will-change: transform;
+        }
+
+        /* --- 3. TOP NAVIGATION BAR (Fixed & Glass) --- */
+        #admin-menubar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--bar-bg);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 5000;
+            transition: 0.3s;
+        }
+
+        .menubar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menubar-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            font-family: var(--font-ui);
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .menubar-btn:hover {
+            background: rgba(120, 120, 120, 0.1);
+        }
+
+        .menubar-btn:active {
+            transform: scale(0.96);
+        }
+
+        .menubar-btn.primary {
+            font-weight: 600;
+            background: rgba(0, 122, 255, 0.1);
+        }
+
+        .menubar-brand {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            margin-right: 10px;
+            cursor: default;
+        }
+
+        /* --- 4. LAYOUT --- */
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px 20px 140px;
+            /* reduced top padding */
+        }
+
+        /* Header Profile & Filters */
+        header {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 100;
+        }
+
+        .sticky-filters {
+            position: sticky;
+            top: calc(var(--header-height) + 6px);
+            z-index: 500;
+            background: transparent;
+            margin: 0 -20px 20px -20px;
+            padding: 10px 20px;
+            transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            border-bottom: 1px solid transparent;
+        }
+
+        /* Target fix for the 'white square' look - ensure filters container is pure transparent */
+        .filters {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 4px 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            background: none !important;
+        }
+
+        .filters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .sticky-filters.is-stuck {
+            background: var(--bar-bg);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 10px rgba(0, 0, 0, 0.02);
+            /* Smooth the transition to avoid 'white square' look */
+            border-top: 1px solid transparent;
+        }
+
+        [data-theme="dark"] .sticky-filters.is-stuck {
+            background: rgba(10, 10, 10, 0.85);
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .profile:active {
+            opacity: 0.6;
+        }
+
+        /* AVATAR */
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            box-shadow: var(--shadow-sm);
+            background-color: #ddd;
+            background-image: url('ft.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .titles h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .titles p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--tile-bg);
+            backdrop-filter: blur(10px);
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: var(--accent);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.92);
+            filter: brightness(0.9);
+        }
+
+        /* Filter Pills */
+        .filters {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 4px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            margin-left: -4px;
+        }
+
+        .pill {
+            border: none;
+            background: rgba(0, 0, 0, 0.08);
+            color: var(--text-primary);
+            /* Use primary text for better visibility */
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-weight: 800;
+            /* Extra bold */
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            white-space: nowrap;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pill:hover {
+            background: rgba(120, 120, 120, 0.2);
+            color: var(--text-primary);
+        }
+
+        .pill.active {
+            background: var(--text-primary);
+            color: var(--bg-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transform: scale(1.05);
+        }
+
+        /* --- 5. GRID SYSTEM --- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: 170px;
+            gap: 18px;
+            padding: 10px 0;
+        }
+
+        .tile {
+            grid-column: span 2;
+            grid-row: span 1;
+            position: relative;
+            background: var(--tile-bg);
+            backdrop-filter: saturate(180%) blur(25px);
+            -webkit-backdrop-filter: saturate(180%) blur(25px);
+            border: 1px solid var(--tile-border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s, border-color 0.4s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transform-style: preserve-3d;
+        }
+
+        .tile::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), var(--tile-glow), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .tile:hover::before {
+            opacity: 1;
+        }
+
+        .tile-shine {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%, rgba(255, 255, 255, 0.05) 100%);
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tile:hover .tile-shine {
+            opacity: 1;
+        }
+
+        .tile:hover {
+            z-index: 10;
+            transform: scale(1.03) translateY(-4px);
+            box-shadow: 0 20px 40px rgba(255, 59, 48, 0.12);
+            /* Warm tinted shadow */
+            border-color: rgba(255, 59, 48, 0.4);
+        }
+
+        .tile:active {
+            transform: scale(0.97) translateY(0);
+            transition: 0.1s;
+        }
+
+        .tile.visited {
+            opacity: 0.9;
+        }
+
+        .tile.small {
+            grid-column: span 1;
+        }
+
+        .tile.wide {
+            grid-column: span 4;
+        }
+
+        .tile.tall {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+
+        .tile.portrait {
+            grid-column: span 1;
+            grid-row: span 2;
+        }
+
+        .tile.extra-wide {
+            grid-column: span 4;
+            grid-row: span 2;
+        }
+
+        .tile-icon img,
+        .tile-icon svg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Standard Content */
+        .tile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .tile-icon {
+            font-size: 1.8rem;
+        }
+
+        .tile-titles h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .tile-titles p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            line-height: 1.35;
+        }
+
+        /* Background Images */
+        .tile.has-bg {
+            border: none;
+        }
+
+        .tile.has-bg .tile-titles h3,
+        .tile.has-bg .tile-titles p {
+            color: white;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .tile-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            transition: transform 0.6s;
+        }
+
+        .tile:hover .tile-bg {
+            transform: scale(1.08);
+        }
+
+        .tile-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 10%, transparent 80%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .tile-content {
+            z-index: 1;
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* --- 6. WIDGET STYLES --- */
+        .music-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            height: 100%;
+        }
+
+        .album-art {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+            object-fit: cover;
+        }
+
+        .music-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .music-bars {
+            display: flex;
+            gap: 3px;
+            align-items: flex-end;
+            height: 12px;
+            margin-top: 6px;
+        }
+
+        .bar {
+            width: 3px;
+            background: var(--accent);
+            border-radius: 2px;
+            animation: sound 0.8s infinite ease-in-out alternate;
+        }
+
+        .bar:nth-child(2) {
+            animation-delay: 0.2s;
+            height: 60%;
+        }
+
+        .bar:nth-child(3) {
+            animation-delay: 0.4s;
+            height: 80%;
+        }
+
+        .bar:nth-child(4) {
+            animation-delay: 0.1s;
+            height: 40%;
+        }
+
+        @keyframes sound {
+            from {
+                height: 20%;
+            }
+
+            to {
+                height: 100%;
+            }
+        }
+
+        .map-wrap {
+            border-radius: var(--radius);
+            overflow: hidden;
+            position: absolute;
+            inset: 0;
+        }
+
+        .map-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.85;
+            transition: 0.3s;
+        }
+
+        .tile:hover .map-img {
+            opacity: 1;
+        }
+
+        .radar-dot {
+            width: 12px;
+            height: 12px;
+            background: #007aff;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 0 2px white;
+            z-index: 2;
+        }
+
+        .radar-wave {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: rgba(0, 122, 255, 0.4);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            z-index: 1;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(5);
+                opacity: 0;
+            }
+        }
+
+        .weather-main {
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        .temp-big {
+            font-size: 3.2rem;
+            font-weight: 300;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .insta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            height: 100%;
+            align-content: center;
+        }
+
+        .insta-img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .link-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .link-item {
+            font-size: 0.8rem;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            transition: 0.2s background;
+        }
+
+        .link-item:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        [data-theme="dark"] .link-item {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .link-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* EDITOR STYLES */
+        .app-btn {
+            background: #eff1f5;
+            color: var(--accent);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: none;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        [data-theme="dark"] .app-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .editor-input,
+        .editor-select,
+        .cmd-input {
+            background: rgba(120, 120, 120, 0.1);
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: var(--font-ui);
+            font-size: 1rem;
+            width: 100%;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .editor-input:focus {
+            background: rgba(120, 120, 120, 0.15);
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+
+        .editor-card {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] .editor-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Estilos para el Editor de Bloques */
+        .block-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] .block-item {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .block-handle {
+            cursor: grab;
+            color: var(--text-secondary);
+            padding-top: 12px;
+        }
+
+        .block-content {
+            flex: 1;
+        }
+
+        .block-remove {
+            color: var(--danger);
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* --- 7. SHEETS & MODALS --- */
+        .sheet-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 6000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.4s;
+        }
+
+        .sheet-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sheet {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            width: 100%;
+            max-width: 680px;
+            height: 85vh;
+            background: var(--modal-bg);
+            backdrop-filter: saturate(180%) blur(40px);
+            -webkit-backdrop-filter: saturate(180%) blur(40px);
+            border-radius: 30px 30px 0 0;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: var(--shadow-float);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sheet-overlay.active .sheet {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .sheet-header {
+            padding: 24px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .sheet-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 30px;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        .article-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .article-body {
+            font-size: 1.15rem;
+            line-height: 1.75;
+            color: var(--text-primary);
+        }
+
+        .article-body p {
+            margin-bottom: 24px;
+        }
+
+        .article-image {
+            width: 100%;
+            border-radius: 20px;
+            margin: 30px 0;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s;
+        }
+
+        .article-image:hover {
+            transform: scale(1.01);
+        }
+
+        .app-store-block {
+            background: var(--tile-bg);
+            border: 1px solid var(--tile-border);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin: 30px 0;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .app-store-block:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        [data-theme="dark"] .app-store-block:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Cmd+K Overlay */
+        .cmd-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            z-index: 7000;
+            display: flex;
+            justify-content: center;
+            padding-top: 20vh;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.2s;
+        }
+
+        .cmd-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        [data-theme="dark"] .cmd-overlay {
+            background: rgba(0, 0, 0, 0.85);
+        }
+
+        .cmd-box {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        .cmd-item {
+            padding: 15px;
+            border-bottom: 1px solid rgba(120, 120, 120, 0.1);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+        }
+
+        .cmd-item:hover {
+            background: rgba(120, 120, 120, 0.05);
+        }
+
+        /* Notifications (iOS Island Style) */
+        .notification-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%);
+            z-index: 9000;
+            width: calc(100% - 40px);
+            max-width: 400px;
+            background: var(--modal-bg);
+            backdrop-filter: saturate(180%) blur(30px);
+            -webkit-backdrop-filter: saturate(180%) blur(30px);
+            padding: 16px 20px;
+            border-radius: 28px;
+            box-shadow: var(--shadow-float);
+            border: 1px solid var(--tile-border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .notification-container.active {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification-icon {
+            width: 38px;
+            height: 38px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+        }
+
+        .notification-text h4 {
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+        }
+
+        .notification-text p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Parallax Classes */
+        .parallax-item {
+            will-change: transform, opacity;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .portada-section {
+                /* On mobile: full viewport height, no gap from header */
+                height: 100svh;
+                /* Use safe viewport height to avoid notch issues */
+                border-radius: 0;
+                margin-bottom: 32px;
+                /* Pull it above the body's padding-top to fill full screen */
+                margin-top: calc(-1 * var(--header-height));
+            }
+
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
+            }
+
+            .tile {
+                grid-column: span 1;
+            }
+
+            .tile.wide {
+                grid-column: span 2;
+            }
+
+            .tile.tall {
+                grid-column: span 1;
+                grid-row: span 2;
+            }
+
+            .tile.portrait {
+                grid-column: span 1;
+                grid-row: span 2;
+            }
+
+            .tile.extra-wide {
+                grid-column: span 2;
+                grid-row: span 2;
+            }
+
+            .temp-big {
+                font-size: 2.5rem;
+            }
+
+            .sheet {
+                height: 92vh;
+            }
+        }
+
+        /* ============================================
+           QUIEN SOY SECTION
+           ============================================ */
+        #quien-soy-container {
+            width: 100%;
+            display: none;
+            /* shown only when filter === 'all' */
+        }
+
+        .qs-section {
+            width: 100%;
+            padding: 120px 20px 160px;
+            max-width: 900px;
+            margin: 0 auto 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Orbit scene */
+        .qs-orbit-scene {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 100px;
+            flex-shrink: 0;
+        }
+
+        .qs-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-image: url('ft.jpeg');
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 20px 60px rgba(255, 59, 48, 0.25), 0 0 0 4px rgba(255, 255, 255, 0.9);
+            position: relative;
+            z-index: 10;
+            transition: box-shadow 0.4s;
+        }
+
+        .qs-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1.5px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qs-ring-1 {
+            width: 170px;
+            height: 170px;
+            border-color: rgba(255, 59, 48, 0.2);
+        }
+
+        .qs-ring-2 {
+            width: 220px;
+            height: 220px;
+            border-color: rgba(255, 149, 0, 0.15);
+        }
+
+        .qs-ring-3 {
+            width: 270px;
+            height: 270px;
+            border-color: rgba(255, 59, 48, 0.1);
+        }
+
+        .qs-orbit-chip {
+            position: absolute;
+            background: white;
+            color: #111;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 6px 12px;
+            border-radius: 50px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+            opacity: 0;
+            transform: scale(0.7);
+            transition: opacity 0.4s, transform 0.4s;
+            letter-spacing: -0.02em;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        [data-theme="dark"] .qs-orbit-chip {
+            background: rgba(40, 40, 42, 0.95);
+            color: white;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .qs-orbit-chip.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Header */
+        .qs-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .qs-label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .qs-title {
+            font-size: 2.4rem;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            margin-bottom: 12px;
+            line-height: 1;
+        }
+
+        .qs-bio {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 500;
+        }
+
+        /* Layout */
+        .qs-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            margin-top: 100px;
+        }
+
+        @media (max-width: 768px) {
+            .qs-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .qs-orbit-scene {
+                width: 220px;
+                height: 220px;
+            }
+
+            .qs-ring-1 {
+                width: 140px;
+                height: 140px;
+            }
+
+            .qs-ring-2 {
+                width: 180px;
+                height: 180px;
+            }
+
+            .qs-ring-3 {
+                width: 220px;
+                height: 220px;
+            }
+
+            .qs-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Cards */
+        .qs-card {
+            background: var(--tile-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--tile-border);
+            border-radius: 24px;
+            padding: 24px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .qs-card.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .qs-card-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qs-card-title svg {
+            opacity: 0.8;
+        }
+
+        /* Education Timeline */
+        .qs-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .qs-timeline-item {
+            display: flex;
+            gap: 16px;
+            position: relative;
+        }
+
+        .qs-timeline-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .qs-timeline-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            border: 2.5px solid var(--bg-color);
+            box-shadow: 0 0 0 2px var(--text-secondary);
+            flex-shrink: 0;
+            margin-top: 3px;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .qs-timeline-dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent), 0 4px 12px rgba(255, 59, 48, 0.3);
+        }
+
+        .qs-timeline-line {
+            width: 2px;
+            flex: 1;
+            background: linear-gradient(to bottom, var(--tile-border), transparent);
+            min-height: 24px;
+            margin: 4px auto;
+        }
+
+        .qs-timeline-content {
+            padding-bottom: 24px;
+        }
+
+        .qs-timeline-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 2px;
+        }
+
+        .qs-timeline-place {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .qs-timeline-year {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Chips grid */
+        .qs-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .qs-chip {
+            background: rgba(255, 59, 48, 0.07);
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 8px 14px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 59, 48, 0.15);
+            letter-spacing: -0.01em;
+        }
+
+        [data-theme="dark"] .qs-chip {
+            background: rgba(255, 149, 0, 0.1);
+            color: var(--accent-orange);
+            border-color: rgba(255, 149, 0, 0.2);
+        }
+
+        /* Full-width bio card */
+        .qs-full {
+            grid-column: 1 / -1;
+        }
     </style>
 </head>
+
 <body>
 
-<!-- FX Layers -->
-<div id="intro-overlay"></div>
-<div class="mesh"></div>
-
-<!-- Command Palette -->
-<div class="cmd-overlay" id="cmd-overlay" onclick="if(event.target===this) toggleCmd()">
-    <div class="cmd-box">
-        <input class="cmd-input" id="cmd-input" placeholder="¿Qué buscas? (Escribe 'Diseño', 'Contacto'...)">
-        <div class="cmd-list" id="cmd-list" style="margin-top:20px"></div>
-    </div>
-</div>
-
-<!-- NAVEGACIÓN FIJA (ADMIN BAR) -->
-<div id="admin-menubar">
-    <div class="menubar-group">
-        <span class="menubar-brand">Javi Barbero</span>
+    <!-- FX Layers -->
+    <div id="intro-overlay">
+        <div id="intro-logo">
+            <div class="avatar-xl"></div>
+            <div style="text-align:center;">
+                <h1>Javier Barbero</h1>
+                <p>Telecom engineering student</p>
+            </div>
         </div>
-    
-    <div class="menubar-group">
-        <div id="admin-actions" style="display:none; gap:5px">
-            <button class="menubar-btn primary" onclick="openEditor(null)">+ Nuevo</button>
-            <button class="menubar-btn" onclick="openGlobalSettings()">⚙️</button>
-            <button class="menubar-btn" onclick="exportData()">💾 JSON</button>
-            <button class="menubar-btn" onclick="toggleAdmin()" style="color:var(--danger)">Salir</button>
-        </div>
-        <button class="menubar-btn" onclick="toggleAdmin()" id="btn-login">Login</button>
     </div>
-</div>
+    <div class="mesh"></div>
 
-<!-- CONTENIDO PRINCIPAL -->
-<div class="container">
-    <header>
-        <div class="header-top">
-            <div class="profile" onclick="playSound('pop')">
-                <div class="avatar"></div>
+    <div class="notification-container" id="global-notification">
+        <div class="notification-icon" id="notif-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+        </div>
+        <div class="notification-text">
+            <h4 id="notif-title">Portfolio</h4>
+            <p id="notif-desc">Bienvenido a mi CV interactivo.</p>
+        </div>
+    </div>
+
+    <!-- Custom Admin Login Modal -->
+    <div id="login-modal-overlay"
+        style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.5); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); align-items:center; justify-content:center;"
+        onclick="if(event.target===this)closeLoginModal()">
+        <div
+            style="background:var(--modal-bg,#fff); border-radius:24px; padding:36px 28px; min-width:300px; max-width:350px; box-shadow:0 30px 80px rgba(0,0,0,0.25); text-align:center;">
+            <div
+                style="width:52px;height:52px;border-radius:14px;background:var(--accent,#ff3b30);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+            </div>
+            <h2 style="font-size:1.3rem;font-weight:800;letter-spacing:-0.04em;margin-bottom:6px;">Admin Login</h2>
+            <p style="font-size:0.9rem;color:var(--text-secondary,#888);margin-bottom:24px;">Introduce tu
+                contrase&#241;a</p>
+            <input id="login-pin-input" type="password" placeholder="Contrase&#241;a" autocomplete="current-password"
+                style="width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--tile-border,#e5e5ea);background:var(--tile-bg,rgba(255,255,255,0.7));font-size:1.1rem;font-family:inherit;font-weight:700;outline:none;box-sizing:border-box;color:var(--text-primary,#111);margin-bottom:8px;text-align:center;letter-spacing:3px;"
+                onkeydown="if(event.key==='Enter')submitLogin()">
+            <p id="login-error-msg"
+                style="color:#ff3b30;font-size:0.82rem;font-weight:700;min-height:20px;margin-bottom:12px;"></p>
+            <button onclick="submitLogin()"
+                style="width:100%;padding:14px;background:var(--accent,#ff3b30);color:white;border:none;border-radius:14px;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:-0.02em;margin-bottom:8px;">Entrar</button>
+            <button onclick="closeLoginModal()"
+                style="width:100%;padding:10px;background:transparent;color:var(--text-secondary,#888);border:none;font-size:0.9rem;cursor:pointer;">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Command Palette -->
+    <div class="cmd-overlay" id="cmd-overlay" onclick="if(event.target===this) toggleCmd()">
+        <div class="cmd-box">
+            <input class="cmd-input" id="cmd-input" placeholder="¿Qué buscas? (Escribe 'Diseño', 'Contacto'...)">
+            <div class="cmd-list" id="cmd-list" style="margin-top:20px"></div>
+        </div>
+    </div>
+
+    <!-- NAVEGACIÓN FIJA (ADMIN BAR) -->
+    <div id="admin-menubar">
+        <div class="menubar-group">
+            <span class="menubar-brand">Javier Barbero</span>
+        </div>
+
+        <div class="menubar-group">
+            <div id="admin-actions" style="display:none; gap:5px">
+                <button class="menubar-btn primary" onclick="openEditor(null)">+ Nuevo</button>
+                <button class="menubar-btn" onclick="openPortadaManager()" title="Gestionar Portada">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <line x1="3" y1="9" x2="21" y2="9" />
+                        <line x1="9" y1="21" x2="9" y2="9" />
+                    </svg>
+                    Portada
+                </button>
+                <button class="menubar-btn" onclick="openQuienSoyManager()" title="Gestionar \u00bfQui\u00e9n Soy?">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    Qui&eacute;n Soy
+                </button>
+                <button class="menubar-btn" onclick="exportData()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                </button>
+                <button class="menubar-btn" onclick="openGlobalSettings()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41M20 12h2M2 12h2M12 2v2M12 20v2" />
+                    </svg>
+                </button>
+                <button class="menubar-btn" onclick="toggleAdmin()" style="color:var(--accent)">Salir</button>
+            </div>
+            <button class="menubar-btn" onclick="toggleAdmin()" id="btn-login">Login</button>
+        </div>
+    </div>
+
+    <div class="profile-float" id="profile-float" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+        <div class="avatar"></div>
+        <h2>Javier Barbero</h2>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- Portada is OUTSIDE the max-width container for full-bleed -->
+    <div id="portada-container" style="width:100%; padding:0 0 0 0;"></div>
+    <div id="quien-soy-container"></div>
+
+    <div class="container">
+        <header id="main-header">
+            <div class="header-top">
                 <div class="titles">
-                    <h1>Javier Barbero</h1>
-                    <p>Digital Product Designer</p>
+                    <p
+                        style="font-weight: 700; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; font-size: 0.75rem;">
+                        Portfolio</p>
+                </div>
+                <div class="header-actions" style="display:flex; gap:10px">
+                    <button class="icon-btn" onclick="toggleTheme(); playSound('switch')" title="Tema">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5" />
+                            <path
+                                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                        </svg>
+                    </button>
+                    <button class="icon-btn" onclick="toggleCmd(); playSound('click')" title="Buscar">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                    </button>
                 </div>
             </div>
-            <div class="header-actions" style="display:flex; gap:10px">
-                <button class="icon-btn" onclick="toggleTheme(); playSound('switch')" title="Tema (T)">🌗</button>
-                <button class="icon-btn" onclick="toggleCmd(); playSound('click')" title="Buscar (Cmd+K)">🔍</button>
+
+            <div class="sticky-filters" id="sticky-filters">
+                <div class="filters">
+                    <button class="pill active" onclick="filterGrid('all', this)">Todo</button>
+                    <button class="pill" onclick="filterGrid('design', this)">Diseño</button>
+                    <button class="pill" onclick="filterGrid('code', this)">Código</button>
+                    <button class="pill" onclick="filterGrid('life', this)">Lifestyle</button>
+                </div>
             </div>
-        </div>
-       
-        <div class="filters">
-            <button class="pill active" onclick="filterGrid('all', this)">Todo</button>
-            <button class="pill" onclick="filterGrid('design', this)">Diseño</button>
-            <button class="pill" onclick="filterGrid('code', this)">Código</button>
-            <button class="pill" onclick="filterGrid('life', this)">Lifestyle</button>
-        </div>
-    </header>
+        </header>
 
-    <div class="grid" id="grid">
-        <!-- Widgets renderizados por JS -->
+        <div class="grid" id="grid">
+            <!-- Widgets renderizados por JS -->
+        </div>
     </div>
-</div>
 
-<!-- HOJA DE DETALLE / EDITOR -->
-<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()">
-    <div class="sheet" id="sheet-main" onclick="event.stopPropagation()">
-        <div class="sheet-header" id="sheet-header">
-            <h3 id="sheet-title" style="font-size:1.1rem; font-weight:700">Detalle</h3>
-            <div style="display:flex; gap:10px">
-                <button class="icon-btn" id="share-btn" onclick="shareContent()" style="width:32px; height:32px; font-size:0.9rem">📤</button>
-                <button class="icon-btn" onclick="closeSheet()" style="width:32px; height:32px; font-size:0.9rem; background:rgba(120,120,120,0.1); color:var(--text-secondary)">✕</button>
+    <!-- HOJA DE DETALLE / EDITOR -->
+    <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()">
+        <div class="sheet" id="sheet-main" onclick="event.stopPropagation()">
+            <div class="sheet-header" id="sheet-header">
+                <h3 id="sheet-title" style="font-size:1.1rem; font-weight:700">Detalle</h3>
+                <div style="display:flex; gap:10px">
+                    <button class="icon-btn" id="share-btn" onclick="shareContent()"
+                        style="width:32px; height:32px; font-size:0.9rem">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                    </button>
+                    <button class="icon-btn" onclick="closeSheet()"
+                        style="width:32px; height:32px; font-size:0.9rem; background:rgba(120,120,120,0.1); color:var(--text-secondary)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                </div>
             </div>
+            <div class="sheet-content" id="sheet-body"></div>
         </div>
-        <div class="sheet-content" id="sheet-body"></div>
     </div>
-</div>
 
-<script>
-/**
- * 🚀 PORTFOLIO ULTIMATE v19 (iOS + Blocks + AppStore Fix + Linktree Fix)
- */
+    <script>
+        /**
+         * 🚀 PORTFOLIO ULTIMATE v19 (iOS + Blocks + AppStore Fix + Linktree Fix)
+         */
 
-// --- STATE & CONFIG ---
-const state = {
-    projects: [],
-    isAdmin: false,
-    filter: 'all',
-    theme: 'light',
-    config: {
-        showHelp: true,
-        helpTitle: "Bienvenido",
-        helpContent: `<div style="text-align:center; padding:20px">
-            <div style="font-size:3rem; margin-bottom:10px">👋</div>
-            <p>Bienvenido a mi espacio digital.</p>
+        // --- STATE & CONFIG ---
+        const state = {
+            projects: [],
+            isAdmin: false,
+            filter: 'all',
+            theme: 'light',
+            config: {
+                showHelp: true,
+                helpTitle: "Bienvenido",
+                helpContent: `<div style="text-align:center; padding:20px">
+            <div style="width:64px; height:64px; background:rgba(0,0,0,0.03); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <p style="font-weight:700; font-size:1.1rem;">Bienvenido a mi espacio digital.</p>
             <p style="color:var(--text-secondary); margin-top:10px">Usa <strong>Cmd+K</strong> para buscar cualquier cosa.</p>
         </div>`
-    }
-};
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-// --- WIDGET DEFINITIONS ---
-const WIDGETS = {
-    standard: { 
-        label: "Proyecto Detallado (Addon)", 
-        desc: "Proyecto completo con capacidad para añadir bloques de texto e imágenes infinitos.", 
-        fields: [] 
-    },
-    
-    spotify: { 
-        label: "Spotify Playing", 
-        desc: "Muestra canción actual con animación.", 
-        fields: ['songTitle', 'artist', 'coverUrl', 'spotifyUrl'], 
-        placeholder: { songTitle: "Bohemian Rhapsody", artist: "Queen", coverUrl: "https://i.scdn.co/image/...", spotifyUrl: "Link a la canción" } 
-    },
-    map: { 
-        label: "Ubicación / Mapa", 
-        desc: "Mapa estático con radar animado.", 
-        fields: ['locationName', 'mapImageUrl', 'mapsLink'], 
-        placeholder: { locationName: "Madrid", mapImageUrl: "URL Imagen Mapa", mapsLink: "https://maps.google..." },
-        helper: "Sube una captura cuadrada bonita del mapa."
-    },
-    gear: { 
-        label: "Setup / Gear", 
-        desc: "Lista de equipo.", 
-        fields: ['gearList'], 
-        placeholder: { gearList: "MacBook Pro M1|Apple, MX Master 3|Logitech" },
-        helper: "Formato: Producto | Marca (Separar con comas)" 
-    },
-    instagram: { 
-        label: "Instagram Grid", 
-        desc: "Últimas 4 fotos cuadradas.", 
-        fields: ['instaImages', 'profileUrl'], 
-        placeholder: { instaImages: "URL1, URL2, URL3, URL4" },
-        helper: "4 URLs de imagen separadas por comas." 
-    },
-    linktree: { 
-        label: "Linktree Mini", 
-        desc: "Lista de enlaces.", 
-        fields: ['links'], 
-        placeholder: { links: "Twitter|url, LinkedIn|url" }
-    },
-    color: { 
-        label: "Color del Día", 
-        desc: "Color HEX grande.", 
-        fields: ['colorHex', 'colorName']
-    },
-    weather: { 
-        label: "El Tiempo", 
-        desc: "Widget clima estético.", 
-        fields: ['city', 'temp', 'condition', 'bgGradient'], 
-        placeholder: { city: "Santander", temp: "18°", condition: "Nublado", bgGradient: "linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)" }
-    },
-    appstore: { label: "App Store", desc: "Estilo App iOS.", fields: ['appIcon', 'appName', 'appDesc', 'appPrice', 'appUrl'] },
-    skills: { label: "Habilidades", desc: "Lista %.", fields: ['skills'], helper: "Figma:90, HTML:80" },
-    fitness: { label: "Fitness", desc: "Anillos actividad.", fields: ['move', 'exercise', 'stand'] },
-    clock: { label: "Reloj", desc: "Hora mundial.", fields: ['timezone', 'city'] },
-    code: { label: "Snippet", desc: "Bloque código.", fields: ['code', 'language'] },
-    status: { label: "Estado", desc: "Semáforo disponibilidad.", fields: ['statusText', 'statusColor'] },
-    cv: { label: "CV Botón", desc: "Descarga PDF.", fields: ['fileUrl', 'btnText'] },
-    experience: { label: "Experiencia", desc: "Timeline.", fields: ['exp'] },
-    education: { label: "Educación", desc: "Timeline.", fields: ['edu'] },
-    palette: { label: "Paleta", desc: "Colores.", fields: ['colors'] },
-    contacts: { label: "Contacto", desc: "Lista datos.", fields: ['contacts'] }
-};
-
-// --- DEFAULT DATA ---
-// 👇👇👇 COMIENZO DE DATOS (REEMPLAZA DESDE AQUÍ) 👇👇👇
-const defaultData = [
-    {
-        "id": 1766170457840,
-        "title": "Redes Sociales",
-        "desc": "",
-        "category": "life",
-        "shape": "tile",
-        "widget": "linktree",
-        "bgImage": "",
-        "url": "",
-        "custom": {
-            "links": "Instagram|https://www.instagram.com/minijbs07/,Twitter|https://x.com/minijbs07"
-        },
-        "blocks": []
-    },
-    {
-        "id": 1766170525076,
-        "title": "",
-        "desc": "",
-        "category": "life",
-        "shape": "tile",
-        "widget": "spotify",
-        "bgImage": "",
-        "url": "",
-        "custom": {
-            "songTitle": "DATA",
-            "artist": "Tainy",
-            "coverUrl": "https://i.scdn.co/image/ab67616d0000b273f885fb64a381318a1c9c14e4",
-            "spotifyUrl": "https://open.spotify.com/album/2X6WyzpxY70eUn3lnewB7d"
-        },
-        "blocks": []
-    },
-    {
-        "id": 1766168611255,
-        "title": "BUSGo!",
-        "desc": "Mi app TUS",
-        "category": "code",
-        "shape": "wide",
-        "widget": "standard",
-        "bgImage": "https://i.ibb.co/V03Wm6rZ/88-C71261-7-F61-4-FB9-9552-605-E3381-A8-F6-1-105-c.jpg",
-        "url": "",
-        "custom": {},
-        "blocks": [
-            {
-                "type": "text",
-                "content": "Mi app para consultar el transporte público en Santander ya está disponible!!"
             },
-            {
-                "type": "image",
-                "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/68/9b/96/689b9697-53ea-0b74-3dde-6f5a31c174e3/Placeholder.mill/400x400bb-75.webp"
-            },
-            {
-                "type": "text",
-                "content": "Disfruta de una experiencia renovada. funcional y rápida."
+            quienSoy: {
+                bio: "Soy Javier, estudiante de Ingeniería de Telecomunicaciones apasionado por el diseño de producto, el desarrollo iOS y las interfaces que marcan la diferencia. Me muevo entre la tecnología y la creatividad, siempre buscando experiencias que impacten.",
+                photo: "ft.jpeg",
+                education: [
+                    { year: "2024 – Hoy", title: "Grado Ingeniería Telecomunicaciones", place: "UNED", active: true },
+                    { year: "2022 – 2024", title: "Diploma de Diseño Digital", place: "Autoformación + Proyectos", active: false },
+                    { year: "2020 – 2022", title: "Bachillerato Tecnológico", place: "IES Cantabria", active: false }
+                ],
+                skills: ["iOS / Swift", "Figma", "JavaScript", "Python", "Diseño UI/UX", "GSAP"],
+                interests: ["Música", "Productividad", "Tech", "Viajes", "Fotografía", "Arquitectura"],
+                orbits: ["iOS Developer", "Diseño de Producto", "Telecom Student", "Music Lover", "Framer", "Figma Expert"]
             }
-        ]
-    },
-    {
-        "id": 106,
-        "title": "BUSGo!",
-        "desc": "Travel",
-        "category": "code",
-        "shape": "wide",
-        "widget": "appstore",
-        "bgImage": "",
-        "url": "https://apps.apple.com/es/app/busgo/id6753916938",
-        "custom": {
-            "appIcon": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/1a/d0/52/1ad05212-8063-2a70-1999-e052e65790e6/Placeholder.mill/400x400bb-75.webp",
-            "appName": "BUSGo!",
-            "appDesc": "Travel",
-            "appPrice": "FREE",
-            "appUrl": "https://apps.apple.com/es/app/busgo/id6753916938"
-        },
-        "blocks": []
-    },
-    {
-        "id": 1766169866973,
-        "title": "SHADE",
-        "desc": "Gestión de Armario Inteligente & Estilismo con IA",
-        "category": "code",
-        "shape": "wide",
-        "widget": "standard",
-        "bgImage": "https://i.ibb.co/LhktCF6R/shademock.png",
-        "url": "",
-        "custom": {},
-        "blocks": [
+        };
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        // --- WIDGET DEFINITIONS ---
+        const WIDGETS = {
+            standard: {
+                label: "Proyecto / Artículo",
+                desc: "Proyecto completo con capacidad para añadir bloques. Ahora con App Store opcional.",
+                fields: ['appStoreLink'],
+                placeholder: { appStoreLink: "https://apps.apple.com/..." }
+            },
+
+            spotify: {
+                label: "Spotify Playing",
+                desc: "Muestra canción actual con animación.",
+                fields: ['songTitle', 'artist', 'coverUrl', 'spotifyUrl'],
+                placeholder: { songTitle: "Bohemian Rhapsody", artist: "Queen", coverUrl: "https://i.scdn.co/image/...", spotifyUrl: "Link a la canción" }
+            },
+            map: {
+                label: "Ubicación / Mapa",
+                desc: "Mapa estático con radar animado.",
+                fields: ['locationName', 'mapImageUrl', 'mapsLink'],
+                placeholder: { locationName: "Madrid", mapImageUrl: "URL Imagen Mapa", mapsLink: "https://maps.google..." },
+                helper: "Sube una captura cuadrada bonita del mapa."
+            },
+            gear: {
+                label: "Setup / Gear",
+                desc: "Lista de equipo.",
+                fields: ['gearList'],
+                placeholder: { gearList: "MacBook Pro M1|Apple, MX Master 3|Logitech" },
+                helper: "Formato: Producto | Marca (Separar con comas)"
+            },
+            instagram: {
+                label: "Instagram Grid",
+                desc: "Últimas 4 fotos cuadradas.",
+                fields: ['instaImages', 'profileUrl'],
+                placeholder: { instaImages: "URL1, URL2, URL3, URL4" },
+                helper: "4 URLs de imagen separadas por comas."
+            },
+            linktree: {
+                label: "Linktree Mini",
+                desc: "Lista de enlaces.",
+                fields: ['links'],
+                placeholder: { links: "Twitter|url, LinkedIn|url" }
+            },
+            color: {
+                label: "Color del Día",
+                desc: "Color HEX grande.",
+                fields: ['colorHex', 'colorName']
+            },
+            weather: {
+                label: "El Tiempo",
+                desc: "Widget clima estético.",
+                fields: ['city', 'temp', 'condition', 'bgGradient'],
+                placeholder: { city: "Santander", temp: "18°", condition: "Nublado", bgGradient: "linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)" }
+            },
+            appstore: { label: "App Store", desc: "Estilo App iOS.", fields: ['appIcon', 'appName', 'appDesc', 'appPrice', 'appUrl'] },
+            skills: { label: "Habilidades", desc: "Lista %.", fields: ['skills'], helper: "Figma:90, HTML:80" },
+            fitness: { label: "Fitness", desc: "Anillos actividad.", fields: ['move', 'exercise', 'stand'] },
+            clock: { label: "Reloj", desc: "Hora mundial.", fields: ['timezone', 'city'] },
+            code: { label: "Snippet", desc: "Bloque código.", fields: ['code', 'language'] },
+            status: { label: "Estado", desc: "Semáforo disponibilidad.", fields: ['statusText', 'statusColor'] },
+            cv: { label: "CV Botón", desc: "Descarga PDF.", fields: ['fileUrl', 'btnText'] },
+            experience: { label: "Experiencia", desc: "Timeline.", fields: ['exp'] },
+            education: { label: "Educación", desc: "Timeline.", fields: ['edu'] },
+            palette: { label: "Paleta", desc: "Colores.", fields: ['colors'] },
+            contacts: { label: "Contacto", desc: "Lista datos.", fields: ['contacts'] }
+        };
+
+        // --- DEFAULT DATA ---
+        // 👇👇👇 COMIENZO DE DATOS (REEMPLAZA DESDE AQUÍ) 👇👇👇
+        const defaultData = [
             {
-                "type": "text",
-                "content": "Descripción General: SHADE es una aplicación nativa para iOS desarrollada íntegramente en SwiftUI que redefine la experiencia de digitalizar un armario físico. El objetivo principal del proyecto fue eliminar la fricción manual típica de los inventarios, creando una herramienta que no solo organiza, sino que actúa como un asistente de estilo personal capaz de planificar outfits y gestionar equipaje de viaje."
+                "id": 1766170457840,
+                "title": "Redes Sociales",
+                "desc": "",
+                "category": "life",
+                "shape": "tile",
+                "widget": "linktree",
+                "bgImage": "",
+                "url": "",
+                "custom": {
+                    "links": "Instagram|https://www.instagram.com/minijbs07/,Twitter|https://x.com/minijbs07"
+                },
+                "blocks": [],
+                "icon": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z\"/></svg>",
+                "isPortada": false
             },
             {
-                "type": "image",
-                "url": "https://i.ibb.co/NfMdwtb/Airbrush-AI-Image-Enhancer-1.png"
+                "id": 1766170525076,
+                "title": "",
+                "desc": "",
+                "category": "life",
+                "shape": "tile",
+                "widget": "spotify",
+                "bgImage": "",
+                "url": "",
+                "custom": {
+                    "songTitle": "DATA",
+                    "artist": "Tainy",
+                    "coverUrl": "https://i.scdn.co/image/ab67616d0000b273f885fb64a381318a1c9c14e4",
+                    "spotifyUrl": "https://open.spotify.com/album/2X6WyzpxY70eUn3lnewB7d"
+                },
+                "blocks": [],
+                "icon": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z\"/></svg>",
+                "isPortada": false
             },
             {
-                "type": "text",
-                "content": "Desafío Técnico e IA: El núcleo de la aplicación se centra en la automatización mediante tecnologías nativas de Apple. Implementé el Vision Framework para desarrollar una función de \"Borrador Mágico\", que realiza segmentación semántica de imágenes en el dispositivo para eliminar fondos automáticamente. En paralelo, la app utiliza modelos de CoreML (MobileNetV2) para clasificar el tipo de prenda y extraer la paleta de colores predominante sin necesidad de entrada manual de datos.\n"
+                "id": 1766168611255,
+                "title": "BUSGo!",
+                "desc": "Mi app TUS",
+                "category": "code",
+                "shape": "extra-wide",
+                "widget": "standard",
+                "bgImage": "https://i.ibb.co/V03Wm6rZ/88-C71261-7-F61-4-FB9-9552-605-E3381-A8-F6-1-105-c.jpg",
+                "url": "",
+                "isPortada": true,
+                "custom": {
+                    "appStoreLink": "https://apps.apple.com/es/app/busgo/id6753916938"
+                },
+                "blocks": [
+                    {
+                        "type": "text",
+                        "content": "Mi app para consultar el transporte público en Santander ya está dfisponible!!"
+                    },
+                    {
+                        "type": "image",
+                        "url": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/8f/d0/de/8fd0dedb-3564-55af-ae9d-bd10dcfba26f/Placeholder.mill/400x400bb-75.webp"
+                    },
+                    {
+                        "type": "text",
+                        "content": "BUSGo!: Ingeniería Swift aplicada a la Movilidad Urbana\nBUSGo! no es solo una aplicación de consulta de transportes; es un ecosistema digital diseñado para transformar la movilidad en Santander. El proyecto nace con el propósito de eliminar la incertidumbre del viajero, convirtiendo los datos abiertos del ayuntamiento en una experiencia de navegación predictiva, fluida y profundamente integrada en el ecosistema iOS.\n\n🏛️ Propósito: El Copiloto Urbano Definitivo\nEl objetivo central de BUSGo! es democratizar el acceso a la información en tiempo real, ofreciendo a ciudadanos y turistas una herramienta que prioriza la autonomía y la tranquilidad. Desde reducir los tiempos de espera hasta facilitar el descubrimiento de la ciudad mediante un Modo Turismo y rutas emblemáticas, la app busca incentivar el uso del transporte sostenible a través de una experiencia de usuario (UX) sin fricciones.\n\n🛠️ Arquitectura Técnica y Funcionalidades Core\nInterfaz Reactiva con SwiftUI\nConstruida íntegramente con SwiftUI y siguiendo una arquitectura MVVM, la app ofrece un rendimiento extremo con scroll fluido a 120Hz. El diseño utiliza fondos dinámicos y un sistema de colores adaptativo para cada línea, garantizando una jerarquía visual clara tanto en modo claro como oscuro.\n\nLive Activities & Dynamic Island: Implementación de ActivityKit para el seguimiento de rutas en tiempo real. Los usuarios pueden monitorizar la llegada de su bus o las paradas restantes directamente desde la pantalla de bloqueo o la Dynamic Island, minimizando la necesidad de interactuar constantemente con el dispositivo.\n\nSimulación de Flota en Vivo: Mediante el consumo de APIs REST de Open Data, BUSGo! procesa coordenadas para renderizar el movimiento de los autobuses sobre MapKit, ofreciendo una visualización dinámica de la red de transporte en lugar de listas estáticas.\n\nNavegación Sensorial y Proactiva\nBrújula Háptica: Utilizando el motor Core Haptics, la app guía al usuario hacia su parada mediante vibraciones direccionales, permitiendo una navegación \"ojos-libres\".\n\nModo \"En Viaje\" & Geofencing: Un sistema de asistencia activa que monitoriza la ubicación localmente y emite alertas críticas cuando es momento de bajar del vehículo, ideal para usuarios que leen o escuchan música durante el trayecto.\n\nVista Panorámica 360º: Integración de imágenes de entorno que permiten al usuario reconocer visualmente su destino antes de llegar.\n\nResiliencia y Eficiencia (Offline First)\nPara garantizar la fiabilidad en cualquier escenario, BUSGo! incorpora un Modo Offline Inteligente. La app mantiene una persistencia de datos local con horarios oficiales y rutas completas, asegurando que el usuario nunca se quede \"tirado\" ante una caída de red o de la API externa. Además, el Modo de Bajo Consumo optimiza los procesos de GPS para proteger la autonomía del iPhone en viajes largos.\n\n🛡️ Privacidad y Automatización Inteligente\nBajo la filosofía Privacy by Design, BUSGo! procesa el 100% de la información de ubicación y rutinas de forma local. Esto permite funciones avanzadas sin comprometer la privacidad:\n\nViajes Programados: Algoritmos que notifican el momento exacto para salir de casa basándose en horarios de oficina o gimnasio.\n\nAcceso \"One-Tap\": El botón \"Llévame a Casa\" calcula instantáneamente la ruta de retorno más eficiente desde la posición actual.\n\nHub de Búsqueda Natural: Un motor de búsqueda que admite lenguaje natural y voz para localizar paradas o líneas de forma inmediata.\n\nBUSGo! representa la intersección perfecta entre la utilidad pública y la tecnología de vanguardia, demostrando cómo el desarrollo nativo en Swift puede mejorar significativamente el día a día de una comunidad urbana."
+                    }
+                ],
+                "icon": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"16 18 22 12 16 6\"/><polyline points=\"8 6 2 12 8 18\"/></svg>"
             },
             {
-                "type": "text",
-                "content": "UX y Diferenciación: Para dotar a la aplicación de una identidad única (\"alma\"), diseñé un Asistente Sarcástico: un sistema interactivo que reacciona a las decisiones del usuario y al clima local con humor y personalidad, mejorando la retención. Además, desarrollé un algoritmo de Colorimetría Facial que utiliza la cámara para analizar el subtono de piel del usuario y recomendar estaciones de color personalizadas.\n\nArquitectura y Datos: La aplicación garantiza la persistencia y sincronización de datos entre dispositivos utilizando Core Data respaldado por CloudKit, asegurando privacidad y una experiencia fluida en el ecosistema Apple. El proyecto abarcó el ciclo completo de vida del software, desde el diseño de la interfaz hasta su publicación y optimización en la App Store."
+                "id": 106,
+                "title": "BUSGo!",
+                "desc": "Travel",
+                "category": "code",
+                "shape": "wide",
+                "widget": "appstore",
+                "bgImage": "",
+                "url": "https://apps.apple.com/es/app/busgo/id6753916938",
+                "custom": {
+                    "appIcon": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/68/9b/96/689b9697-53ea-0b74-3dde-6f5a31c174e3/Placeholder.mill/400x400bb-75.webp",
+                    "appName": "BUSGo!",
+                    "appDesc": "Travel",
+                    "appPrice": "FREE",
+                    "appUrl": "https://apps.apple.com/es/app/busgo/id6753916938"
+                },
+                "blocks": [],
+                "icon": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"16 18 22 12 16 6\"/><polyline points=\"8 6 2 12 8 18\"/></svg>",
+                "isPortada": false
             },
             {
-                "type": "image",
-                "url": "https://i.ibb.co/QvsTP9Tg/Icono-1080x1080.png"
+                "id": 1766169866973,
+                "title": "SHADE (PROXIMAMENTE...)",
+                "desc": "Mi app para gestionar tu armario",
+                "category": "code",
+                "shape": "wide",
+                "widget": "standard",
+                "bgImage": "https://i.ibb.co/LhktCF6R/shademock.png",
+                "url": "",
+                "custom": {},
+                "blocks": [
+                    {
+                        "type": "text",
+                        "content": "Próximamente, mi aplicación con IA integrada preparada para organizar tu armario, no repetir los outfits, y diversas utilidades relativas a tener menos dolores de cabeza a la hora de vestirte.\n"
+                    },
+                    {
+                        "type": "image",
+                        "url": "https://i.ibb.co/209C0VBD/fo.png"
+                    }
+                ],
+                "icon": "<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"16 18 22 12 16 6\"/><polyline points=\"8 6 2 12 8 18\"/></svg>",
+                "isPortada": false
             }
-        ]
-    },
-    {
-        "id": 1767888107668,
-        "title": "Nuevo",
-        "desc": "",
-        "category": "design",
-        "shape": "wide",
-        "widget": "appstore",
-        "bgImage": "",
-        "url": "",
-        "custom": {
-            "appIcon": "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/25/ca/e9/25cae920-0513-7b2d-c4b8-8578e6747a2f/Placeholder.mill/400x400bb-75.webp",
-            "appName": "SHADE",
-            "appDesc": "Vístete de forma inteligente",
-            "appPrice": "FREE",
-            "appUrl": "https://apps.apple.com/es/app/shade/id6754871627"
-        },
-        "blocks": []
-    }
-];
-// 👆👆👆 FIN DE DATOS (HASTA AQUÍ) 👆👆👆
+        ];
+        // 👆👆👆 FIN DE DATOS (HASTA AQUÍ) 👆👆👆
 
-// --- INIT ---
-window.onload = () => {
-    const savedProjects = localStorage.getItem('portfolio_v14');
-    state.projects = savedProjects ? JSON.parse(savedProjects) : defaultData;
-    
-    const savedConfig = localStorage.getItem('portfolio_config');
-    if(savedConfig) state.config = JSON.parse(savedConfig);
+        // --- INIT ---
+        window.onload = () => {
+            const savedProjects = localStorage.getItem('portfolio_v14');
+            if (savedProjects) {
+                try {
+                    state.projects = JSON.parse(savedProjects);
+                } catch (e) {
+                    console.warn('localStorage corrupted, using defaults', e);
+                    state.projects = defaultData;
+                }
+            } else {
+                state.projects = defaultData;
+                // Save defaults so they are preserved across reloads
+                localStorage.setItem('portfolio_v14', JSON.stringify(defaultData));
+            }
 
-    updateHelpVisibility();
-    renderGrid();
-    setupListeners();
-    checkHash();
-    startIntervals();
-};
+            const savedConfig = localStorage.getItem('portfolio_config');
+            if (savedConfig) state.config = JSON.parse(savedConfig);
 
-// --- CORE RENDERER ---
-function renderGrid() {
-    const grid = document.getElementById('grid');
-    grid.innerHTML = '';
-   
-    state.projects.forEach(p => {
-        if (state.filter !== 'all' && p.category !== state.filter) return;
-        
-        const tile = document.createElement('div');
-        tile.className = `tile ${p.shape || ''} ${p.widget === 'standard' && p.bgImage ? 'has-bg' : ''}`;
-        tile.id = `tile-${p.id}`;
-       
-        let innerHTML = getWidgetHTML(p);
-        
-        if(p.widget === 'standard' && p.bgImage) {
-            innerHTML += `<div class="tile-overlay"></div><img src="${p.bgImage}" class="tile-bg" onload="this.classList.add('loaded')">`;
-        }
-        
-        if(state.isAdmin) {
-            innerHTML += `<div style="position:absolute; top:10px; right:10px; z-index:100; display:flex; gap:6px;">
-                <button class="pill" style="padding:4px 10px; font-size:0.7rem; background:white; color:black; box-shadow:0 2px 5px rgba(0,0,0,0.2);" onclick="event.stopPropagation(); openEditor(${p.id})" ontouchstart="event.stopPropagation()">Edit</button>
-                <button class="pill" style="padding:4px 10px; font-size:0.7rem; background:var(--danger); color:white; box-shadow:0 2px 5px rgba(0,0,0,0.2);" onclick="event.stopPropagation(); deleteTile(${p.id})" ontouchstart="event.stopPropagation()">✕</button>
+            // Load quienSoy data
+            const savedQS = localStorage.getItem('portfolio_quiensoy');
+            if (savedQS) {
+                try { state.quienSoy = JSON.parse(savedQS); } catch (e) { /* use default */ }
+            }
+
+            updateHelpVisibility();
+            renderGrid();
+            renderQuienSoy();
+            setupListeners();
+            checkHash();
+            startIntervals();
+
+            // Intro animation: fade and zoom out of intro overlay
+            const overlay = document.getElementById('intro-overlay');
+            setTimeout(() => {
+                if (overlay) overlay.classList.add('done');
+            }, 250);
+
+            // GSAP Entrance — profile slides in quickly
+            gsap.from(".profile", { y: -15, opacity: 0, duration: 0.5, delay: 0.2, ease: "expo.out" });
+
+            setTimeout(() => {
+                showNotification("Bienvenido", "Descubre mi portfolio");
+            }, 1800);
+
+            // Mobile Parallax Effect
+            gsap.to(".grid", {
+                y: -50,
+                scrollTrigger: {
+                    trigger: ".grid",
+                    start: "top bottom",
+                    end: "bottom top",
+                    scrub: 1.5
+                }
+            });
+
+            // ScrollTrigger global refresh
+            ScrollTrigger.refresh();
+        };
+
+        const categoryIcons = {
+            design: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
+            code: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+            life: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`
+        };
+
+        // --- CORE RENDERER ---
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            const portadaContainer = document.getElementById('portada-container');
+            grid.innerHTML = '';
+            portadaContainer.innerHTML = '';
+
+            // Kill all existing ScrollTrigger instances to prevent stacking on re-render
+            ScrollTrigger.getAll().forEach(t => t.kill());
+
+            const portadaProject = state.projects.find(p => p.isPortada);
+            const otherProjects = state.projects.filter(p => !p.isPortada);
+
+            if (portadaProject && state.filter === 'all') {
+                const p = portadaProject;
+                const portadaHTML = `
+                    <div class="portada-section" id="portada-hero">
+                        <img src="${p.bgImage || ''}" class="portada-bg" id="portada-bg">
+                        <div class="portada-content" id="portada-content" style="z-index:50;">
+                            <span style="font-weight:700; color:rgba(255,210,100,0.95); text-transform:uppercase; letter-spacing:2px; font-size:0.9rem; margin-bottom:10px; display:block;">Proyecto Destacado</span>
+                            <h1 class="portada-title">${p.title}</h1>
+                            <p style="font-size:1.2rem; opacity:0.9; max-width:500px; margin-bottom:30px;">${p.desc}</p>
+                            
+                            <div class="portada-profile" style="display:flex; align-items:center; gap:12px; margin-top:20px;">
+                                <div class="avatar" style="width:40px; height:40px;"></div>
+                                <div>
+                                    <div style="font-weight:700; font-size:1rem;">Javier Barbero</div>
+                                    <div style="font-size:0.8rem; opacity:0.7;">Telecom engineering student</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top:24px;">
+                                <button id="portada-cta-btn" style="background:rgba(255,255,255,0.2); backdrop-filter:blur(10px); border:1.5px solid rgba(255,255,255,0.5); color:white; padding:14px 36px; border-radius:50px; font-size:1rem; font-weight:700; cursor:pointer; pointer-events:all;">Ver Proyecto &rarr;</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                portadaContainer.innerHTML = portadaHTML;
+
+                // Use addEventListener for reliable click handling
+                const heroEl = document.getElementById('portada-hero');
+                const ctaBtn = document.getElementById('portada-cta-btn');
+                if (heroEl) heroEl.addEventListener('click', (e) => { handleTileClick(p); });
+                if (ctaBtn) ctaBtn.addEventListener('click', (e) => { e.stopPropagation(); handleTileClick(p); });
+
+                // Magic Scroll Effect (Magic Receipt)
+                gsap.to("#portada-hero", {
+                    scale: 0.9,
+                    y: 100,
+                    opacity: 0.2,
+                    borderRadius: "80px",
+                    scrollTrigger: {
+                        trigger: "#portada-hero",
+                        start: "top top",
+                        end: "bottom top",
+                        scrub: true
+                    }
+                });
+
+                gsap.to("#portada-bg", {
+                    scale: 1.2,
+                    scrollTrigger: {
+                        trigger: "#portada-hero",
+                        start: "top top",
+                        end: "bottom top",
+                        scrub: true
+                    }
+                });
+
+                // Profile Float Trigger
+                ScrollTrigger.create({
+                    trigger: "#portada-hero",
+                    start: "bottom 20%",
+                    onEnter: () => document.getElementById('profile-float').classList.add('active'),
+                    onLeaveBack: () => document.getElementById('profile-float').classList.remove('active'),
+                });
+            } else {
+                document.getElementById('profile-float').classList.remove('active');
+            }
+
+            otherProjects.forEach(p => {
+                if (state.filter !== 'all' && p.category !== state.filter) return;
+
+                const tile = document.createElement('div');
+                tile.className = `tile ${p.shape || ''} ${p.widget === 'standard' && p.bgImage ? 'has-bg' : ''} parallax-item`;
+                tile.id = `tile-${p.id}`;
+
+                // Replace emoji in data with SVG if available
+                if (!p.icon || p.icon.length < 5) { // Likely an emoji or empty
+                    p.icon = categoryIcons[p.category] || p.icon || '';
+                }
+
+                let innerHTML = getWidgetHTML(p);
+                innerHTML += `<div class="tile-shine"></div>`;
+
+                if (p.widget === 'standard' && p.bgImage) {
+                    innerHTML += `<div class="tile-overlay"></div><img src="${p.bgImage}" class="tile-bg" onload="this.classList.add('loaded')">`;
+                }
+
+                tile.addEventListener('mousemove', (e) => {
+                    const rect = tile.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    tile.style.setProperty('--x', `${x}%`);
+                    tile.style.setProperty('--y', `${y}%`);
+                });
+
+                if (state.isAdmin) {
+                    innerHTML += `<div style="position:absolute; top:10px; right:10px; z-index:100; display:flex; gap:6px;">
+                <button class="pill" style="padding:4px 10px; font-size:0.7rem; background:white; color:black; " onclick="event.stopPropagation(); openEditor(${p.id})">Edit</button>
+                <button class="pill" style="padding:4px 10px; font-size:0.7rem; background:var(--danger); color:white; " onclick="event.stopPropagation(); deleteTile(${p.id})">✕</button>
             </div>`;
+                }
+
+                tile.innerHTML = innerHTML;
+                tile.onclick = () => handleTileClick(p);
+                tile.onmouseenter = () => playSound('hover');
+                grid.appendChild(tile);
+
+                // GSAP Scroll Parallax per tile
+                gsap.from(tile, {
+                    y: 60,
+                    opacity: 0,
+                    scale: 0.95,
+                    duration: 1,
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: tile,
+                        start: "top 95%",
+                        toggleActions: "play none none none"
+                    }
+                });
+            });
+
+            // Sticky filters appearance
+            gsap.to("#sticky-filters", {
+                scrollTrigger: {
+                    trigger: "#sticky-filters",
+                    start: "top 71px",
+                    onEnter: () => document.getElementById('sticky-filters').classList.add('is-stuck'),
+                    onLeaveBack: () => document.getElementById('sticky-filters').classList.remove('is-stuck')
+                }
+            });
+
+            ScrollTrigger.refresh();
         }
-        
-        tile.innerHTML = innerHTML;
-        tile.onclick = () => handleTileClick(p);
-        tile.onmouseenter = () => playSound('hover');
-        grid.appendChild(tile);
-    });
-}
 
-function getWidgetHTML(p) {
-    const c = p.custom || {};
-    let content = '';
-    
-    switch(p.widget) {
-        case 'spotify':
-            content = `<div class="music-card"><img src="${c.coverUrl || 'https://via.placeholder.com/60'}" class="album-art"><div class="music-info"><p style="font-size:0.7rem; color:var(--success); font-weight:700; text-transform:uppercase; margin-bottom:2px">Now Playing</p><h3 style="font-size:0.9rem; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.songTitle || 'Song'}</h3><p style="font-size:0.8rem; color:var(--text-secondary);">${c.artist || 'Artist'}</p><div class="music-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div></div>`;
-            break;
-        case 'map':
-            content = `<div class="w-full" style="height:100%; position:relative;"><div class="map-wrap"><img src="${c.mapImageUrl}" class="map-img"></div><div class="radar-dot"></div><div class="radar-wave"></div><div style="position:absolute; bottom:15px; left:15px; z-index:2; background:rgba(255,255,255,0.9); backdrop-filter:blur(10px); padding:4px 10px; border-radius:12px; font-weight:600; font-size:0.75rem; box-shadow:var(--shadow-sm); color:black;">📍 ${c.locationName}</div></div>`;
-            break;
-        case 'instagram':
-            const imgs = (c.instaImages || "").split(',');
-            content = `<div class="insta-grid">${imgs.slice(0,4).map(url => `<img src="${url.trim()}" class="insta-img">`).join('')}</div>`;
-            break;
-        case 'linktree':
-            const links = (c.links || "").split(',');
-            // FIX: Añadido onclick con stopPropagation y window.open
-            content = `<div class="w-full"><div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;"><div class="avatar" style="width:28px; height:28px;"></div><h3 style="font-size:0.95rem; font-weight:700;">Links</h3></div><div class="link-stack">${links.slice(0,3).map(l => { const [txt, url] = l.split('|'); return `<div class="link-item" onclick="event.stopPropagation(); window.open('${url ? url.trim() : '#'}', '_blank')" style="cursor:pointer"><span>${txt}</span> <span style="color:var(--text-secondary)">↗</span></div>`; }).join('')}</div></div>`;
-            break;
-        case 'gear':
-             const gearItems = (c.gearList || "").split(',');
-             content = `<div class="w-full"><h3 style="margin-bottom:12px; font-size:0.9rem;">⚙️ Setup</h3><div style="display:flex; flex-direction:column; gap:6px;">${gearItems.slice(0,3).map(g => `<div style="font-size:0.8rem; padding-bottom:4px; border-bottom:1px solid rgba(0,0,0,0.05);">${g.split('|')[0]}</div>`).join('')}${gearItems.length > 3 ? `<div style="font-size:0.7rem; color:var(--text-secondary)">+${gearItems.length-3} más...</div>` : ''}</div></div>`;
-             break;
-        case 'color':
-            content = `<div style="width:100%; height:100%; background:${c.colorHex || '#000'}; border-radius:18px; display:flex; flex-direction:column; justify-content:flex-end; padding:15px; color:white;"><h3 style="font-size:1.4rem; font-weight:700;">${c.colorName || 'Color'}</h3><div style="font-family:var(--font-mono); font-size:0.8rem; opacity:0.8; margin-top:4px;" onclick="event.stopPropagation(); copyText('${c.colorHex}')">${c.colorHex}</div></div>`;
-            break;
-        case 'weather':
-            const bg = c.bgGradient || "linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%)";
-            content = `<div class="tile-content weather-main" style="background:${bg}; margin:-24px; padding:24px; width:calc(100% + 48px); height:calc(100% + 48px); color:white; display:flex; flex-direction:column; justify-content:space-between;"><div style="display:flex; justify-content:space-between; align-items:start"><div><h3 style="font-size:1.1rem; font-weight:600">${c.city}</h3><p style="opacity:0.9; font-size:0.85rem">${c.condition}</p></div><div style="font-size:1.8rem">⛅️</div></div><div class="temp-big">${c.temp}</div></div>`;
-            break;
-        case 'appstore':
-            // Renderiza el widget en la cuadrícula (sin enlace directo aquí, se maneja al hacer clic en el tile)
-            content = `<div style="display:flex; flex-direction:column; height:100%; justify-content:space-between;"><div style="display:flex; gap:12px;"><img src="${c.appIcon}" style="width:50px; height:50px; border-radius:12px; box-shadow:var(--shadow-sm);"><div style="flex:1;"><h3 style="font-size:0.95rem; font-weight:600; margin-bottom:2px; line-height:1.2;">${c.appName || 'App Name'}</h3><p style="font-size:0.75rem; color:var(--text-secondary); line-height:1.2;">${c.appDesc || 'App'}</p></div></div><button class="app-btn">${c.appPrice || 'GET'}</button></div>`;
-            break;
-        case 'fitness':
-            const makeRing = (r, val, col) => { const circ = 2 * Math.PI * r; const off = circ - ((val/100)*circ); return `<circle cx="45" cy="45" r="${r}" fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="8"/><circle cx="45" cy="45" r="${r}" fill="none" stroke="${col}" stroke-width="8" stroke-linecap="round" style="stroke-dasharray:${circ}; stroke-dashoffset:${off}; transform: rotate(-90deg); transform-origin: 50% 50%;"/>`; };
-            content = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%;"><svg width="90" height="90" viewBox="0 0 90 90">${makeRing(36, c.move||0, '#ff3b30')}${makeRing(24, c.exercise||0, '#34c759')}${makeRing(12, c.stand||0, '#007aff')}</svg><div style="margin-top:8px; font-size:0.8rem; font-weight:700; color:var(--text-secondary);">Actividad</div></div>`;
-            break;
-        case 'clock':
-            content = `<div class="live-clock" data-tz="${c.timezone||'UTC'}" style="text-align:center; display:flex; flex-direction:column; justify-content:center; height:100%;"><h3 style="color:var(--accent); font-size:0.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:5px;">${c.city||'CITY'}</h3><div class="clock-time" style="font-size:2.8rem; font-weight:200; font-variant-numeric:tabular-nums; line-height:1;">00:00</div></div>`;
-            break;
-        case 'status':
-            content = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center;"><div style="width:16px; height:16px; border-radius:50%; background:${c.statusColor === 'green' ? '#34c759' : c.statusColor === 'red' ? '#ff3b30' : '#ff9f0a'}; box-shadow:0 0 0 4px rgba(0,0,0,0.05); margin-bottom:12px;"></div><h3 style="margin-bottom:4px; font-size:1rem;">${c.statusText || 'Online'}</h3><p style="font-size:0.8rem; color:var(--text-secondary);">${p.desc}</p></div>`;
-            break;
-        case 'cv':
-             content = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center;"><div style="font-size:3rem; margin-bottom:10px; filter:grayscale(1);">📄</div><h3 style="margin-bottom:10px; font-size:1rem;">${p.title}</h3><button class="pill active" style="font-size:0.8rem; padding:6px 16px;">${c.btnText || 'Descargar'}</button></div>`;
-             break;
-        case 'code':
-            content = `<div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-primary); opacity:0.8; overflow:hidden;"><span style="color:var(--text-secondary)">// ${c.language}</span><br>${c.code.split('\n').slice(0,5).map(l => l.replace(/function|const|let|var|return/g, '<span style="color:#d52a86">$&</span>')).join('<br>')}</div>`;
-            break;
-        default: // Standard
-            const headerRight = state.isAdmin ? '' : '<div style="font-size:1.2rem; opacity:0.5;">↗</div>';
-            content = `<div class="tile-content">
-                <div class="tile-header">
-                    <div class="tile-icon" style="background:rgba(255,255,255,0.9); width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">${p.icon || '✨'}</div>
-                    ${headerRight}
-                </div>
-                <div class="tile-titles">
-                    <h3>${p.title}</h3>
-                    <p>${p.desc}</p>
-                </div>
-            </div>`;
-    }
-    return content;
-}
+        function handleTileClickById(id) {
+            const p = state.projects.find(x => x.id == id);
+            if (p) handleTileClick(p);
+        }
 
-function getWidgetFullContent(p) {
-    const c = p.custom || {};
-    let html = '';
-    const mkList = (items) => (items||"").split(',').map(i => `<div style="padding:15px; border-bottom:1px solid rgba(0,0,0,0.05);">${i}</div>`).join('');
+        function getWidgetHTML(p) {
+            const c = p.custom || {};
+            let content = '';
 
-    switch(p.widget) {
-        case 'spotify':
-            html = `<div style="text-align:center; padding:40px 20px;"><img src="${c.coverUrl}" style="width:260px; height:260px; border-radius:20px; box-shadow:var(--shadow-float); margin-bottom:30px; animation:spin 30s linear infinite;"><h2 style="font-size:2rem; margin-bottom:10px; line-height:1.2;">${c.songTitle}</h2><p style="font-size:1.3rem; color:var(--text-secondary); margin-bottom:30px;">${c.artist}</p><a href="${c.spotifyUrl}" target="_blank" class="pill active" style="padding:15px 40px; background:#1DB954; color:white; font-size:1.1rem; text-decoration:none;">Escuchar en Spotify</a></div>`;
-            break;
-        case 'map':
-            html = `<div style="height:60vh; width:100%; border-radius:24px; overflow:hidden; position:relative;"><img src="${c.mapImageUrl}" style="width:100%; height:100%; object-fit:cover;"><div style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); background:var(--modal-bg); padding:15px 30px; border-radius:50px; box-shadow:var(--shadow-float); text-align:center; backdrop-filter:blur(20px);"><h3 style="margin-bottom:5px;">${c.locationName}</h3><a href="${c.mapsLink}" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:700;">Ver en Google Maps ↗</a></div></div>`;
-            break;
-        case 'instagram':
-            const iImgs = (c.instaImages || "").split(',');
-            html = `<div style="padding:10px;"><div style="text-align:center; margin-bottom:30px;"><div style="font-size:3rem; margin-bottom:10px; background:linear-gradient(45deg, #f09433 0%, #dc2743 50%, #bc1888 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Instagram</div><a href="${c.profileUrl}" target="_blank" class="pill active">Seguir Perfil</a></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">${iImgs.map(url => `<img src="${url.trim()}" style="width:100%; border-radius:12px; box-shadow:var(--shadow-sm);">`).join('')}</div></div>`;
-            break;
-        case 'gear':
-            html = `<div><h2 style="margin-bottom:20px;">Mi Equipo (Setup)</h2>${mkList(c.gearList)}</div>`;
-            break;
-        // NUEVA VISTA DETALLADA PARA APP STORE QUE SÍ FUNCIONA
-        case 'appstore':
-            html = `<div style="text-align:center; padding:30px 20px;">
+            switch (p.widget) {
+                case 'spotify':
+                    content = `
+                        <div class="music-card" style="display:flex; align-items:center; gap:16px; padding:4px;">
+                            <img src="${c.coverUrl || 'https://via.placeholder.com/64'}" style="width:64px; height:64px; border-radius:12px; box-shadow:var(--shadow-sm);">
+                            <div class="music-info" style="flex:1; min-width:0;">
+                                <p style="font-size:0.75rem; color:var(--accent); font-weight:800; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px">Now Playing</p>
+                                <h3 style="font-size:1.05rem; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:-0.03em;">${c.songTitle || 'Song'}</h3>
+                                <p style="font-size:0.9rem; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${c.artist || 'Artist'}</p>
+                                <div class="music-bars" style="margin-top:10px;">
+                                    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'map':
+                    content = `
+                        <div class="w-full" style="height:100%; position:relative; margin:-24px; width:calc(100% + 48px); height:calc(100% + 48px);">
+                            <div class="map-wrap" style="height:100%;"><img src="${c.mapImageUrl}" class="map-img" style="width:100%; height:100%; object-fit:cover;"></div>
+                            <div class="radar-dot"></div>
+                            <div class="radar-wave"></div>
+                            <div style="position:absolute; bottom:20px; left:20px; z-index:2; background:rgba(255,255,255,0.9); backdrop-filter:blur(15px); padding:8px 14px; border-radius:14px; font-weight:700; font-size:0.85rem; box-shadow:var(--shadow-sm); color:black; display:flex; align-items:center; gap:6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                ${c.locationName}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'linktree':
+                    const links = (c.links || "").split(',');
+                    content = `
+                        <div class="w-full">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:18px;">
+                                <div class="avatar" style="width:32px; height:32px; box-shadow:none; background-image:url('ft.jpeg');"></div>
+                                <h3 style="font-size:1.1rem; font-weight:800; letter-spacing:-0.03em;">Links</h3>
+                            </div>
+                            <div class="link-stack">
+                                ${links.slice(0, 3).map(l => {
+                        const [txt, url] = l.split('|');
+                        return `
+                                        <div class="link-item" onclick="event.stopPropagation(); window.open('${url ? url.trim() : '#'}', '_blank')" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(0,0,0,0.03); border-radius:14px; margin-bottom:8px; transition:0.2s;">
+                                            <span style="font-weight:700; font-size:0.95rem;">${txt}</span> 
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                                        </div>`;
+                    }).join('')}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'weather':
+                    const bg = c.bgGradient || "linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%)";
+                    content = `
+                        <div class="tile-content weather-main" style="background:${bg}; margin:-24px; padding:24px; width:calc(100% + 48px); height:calc(100% + 48px); color:white; display:flex; flex-direction:column; justify-content:space-between;">
+                            <div style="display:flex; justify-content:space-between; align-items:start">
+                                <div>
+                                    <h3 style="font-size:1.1rem; font-weight:800; letter-spacing:-0.02em;">${c.city}</h3>
+                                    <p style="opacity:0.9; font-size:0.9rem; font-weight:600;">${c.condition}</p>
+                                </div>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2"/><path d="M12 21v2"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><path d="M1 12h2"/><path d="M21 12h2"/><path d="M4.22 19.78l1.42-1.42"/><path d="M18.36 5.64l1.42-1.42"/></svg>
+                            </div>
+                            <div class="temp-big" style="font-size:3rem; font-weight:200;">${c.temp}</div>
+                        </div>
+                    `;
+                    break;
+                case 'appstore':
+                    content = `
+                        <div style="display:flex; flex-direction:column; height:100%; justify-content:space-between; padding:2px;">
+                            <div style="display:flex; gap:14px; align-items:center;">
+                                <img src="${c.appIcon}" style="width:60px; height:60px; border-radius:14px; box-shadow:var(--shadow-md);">
+                                <div style="flex:1; min-width:0;">
+                                    <h3 style="font-size:1.05rem; font-weight:800; margin-bottom:4px; line-height:1.1; letter-spacing:-0.03em;">${c.appName || 'App Name'}</h3>
+                                    <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.2; font-weight:500;">${c.appDesc || 'App'}</p>
+                                </div>
+                            </div>
+                            <button class="app-btn" style="background:var(--accent); color:white; border:none; padding:10px; border-radius:20px; font-weight:800; font-size:0.9rem; width:100%; text-transform:uppercase; letter-spacing:0.5px; box-shadow:0 4px 15px rgba(255,59,48,0.3);">${c.appPrice || 'GET'}</button>
+                        </div>
+                    `;
+                    break;
+                case 'cv':
+                    content = `
+                        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center;">
+                            <div style="background:var(--accent); width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; margin-bottom:16px; box-shadow:0 8px 25px rgba(255,59,48,0.2);">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            </div>
+                            <h3 style="margin-bottom:14px; font-size:1.1rem; font-weight:800; letter-spacing:-0.03em;">${p.title}</h3>
+                            <button class="pill active" style="font-size:0.9rem; padding:10px 24px; font-weight:800;">${c.btnText || 'Descargar CV'}</button>
+                        </div>
+                    `;
+                    break;
+                default: // Standard Tile
+                    content = `
+                        <div class="tile-content" style="height:100%; display:flex; flex-direction:column; justify-content:space-between;">
+                            <div class="tile-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                <div class="tile-icon" style="background:rgba(255,255,255,0.9); width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; box-shadow:var(--shadow-sm);">${p.icon || ''}</div>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6;"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                            </div>
+                            <div class="tile-titles">
+                                <h3 style="font-size:1.15rem; font-weight:800; letter-spacing:-0.03em; margin-bottom:4px;">${p.title}</h3>
+                                <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.2; font-weight:500;">${p.desc}</p>
+                            </div>
+                        </div>
+                    `;
+            }
+            return content;
+        }
+
+        function getWidgetFullContent(p) {
+            const c = p.custom || {};
+            let html = '';
+            const mkList = (items) => (items || "").split(',').map(i => `<div style="padding:15px; border-bottom:1px solid rgba(0,0,0,0.05);">${i}</div>`).join('');
+
+            switch (p.widget) {
+                case 'spotify':
+                    html = `<div style="text-align:center; padding:40px 20px;"><img src="${c.coverUrl}" style="width:260px; height:260px; border-radius:20px; box-shadow:var(--shadow-float); margin-bottom:30px; animation:spin 30s linear infinite;"><h2 style="font-size:2.4rem; margin-bottom:12px; font-weight:800; letter-spacing:-0.04em;">${c.songTitle}</h2><p style="font-size:1.4rem; color:var(--text-secondary); margin-bottom:32px; font-weight:500;">${c.artist}</p><a href="${c.spotifyUrl}" target="_blank" class="pill active" style="padding:18px 48px; background:#1DB954; color:white; font-size:1.1rem; text-decoration:none; font-weight:700; display:inline-block; border-radius:30px; box-shadow:0 10px 20px rgba(29,185,84,0.3);">Escuchar en Spotify</a></div>`;
+                    break;
+                case 'map':
+                    html = `<div style="height:60vh; width:100%; border-radius:24px; overflow:hidden; position:relative;"><img src="${c.mapImageUrl}" style="width:100%; height:100%; object-fit:cover;"><div style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); background:var(--modal-bg); padding:16px 32px; border-radius:50px; box-shadow:var(--shadow-float); text-align:center; backdrop-filter:blur(25px); border:1px solid var(--tile-border);"><h3 style="margin-bottom:8px; font-weight:800; letter-spacing:-0.02em;">${c.locationName}</h3><a href="${c.mapsLink}" target="_blank" style="color:var(--accent); text-decoration:none; font-weight:700; display:flex; align-items:center; gap:6px;">Ver en Google Maps <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></a></div></div>`;
+                    break;
+                case 'instagram':
+                    const iImgs = (c.instaImages || "").split(',');
+                    html = `<div style="padding:10px;"><div style="text-align:center; margin-bottom:30px;"><div style="font-size:3rem; margin-bottom:10px; background:linear-gradient(45deg, #f09433 0%, #dc2743 50%, #bc1888 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Instagram</div><a href="${c.profileUrl}" target="_blank" class="pill active">Seguir Perfil</a></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">${iImgs.map(url => `<img src="${url.trim()}" style="width:100%; border-radius:12px; box-shadow:var(--shadow-sm);">`).join('')}</div></div>`;
+                    break;
+                case 'gear':
+                    html = `<div style="padding:20px;"><h2 style="margin-bottom:20px; font-weight:800; letter-spacing:-0.03em;">Setup & Gear</h2>${mkList(c.gearList)}</div>`;
+                    break;
+                // NUEVA VISTA DETALLADA PARA APP STORE QUE SÍ FUNCIONA
+                case 'appstore':
+                    html = `<div style="text-align:center; padding:30px 20px;">
                 <img src="${c.appIcon}" style="width:120px; height:120px; border-radius:24px; box-shadow:var(--shadow-md); margin-bottom:20px;">
                 <h2 style="font-size:1.8rem; margin-bottom:5px; line-height:1.2;">${c.appName}</h2>
                 <p style="font-size:1rem; color:var(--text-secondary); margin-bottom:30px;">${c.appDesc}</p>
@@ -678,197 +2276,590 @@ function getWidgetFullContent(p) {
                     OBTENER · ${c.appPrice || 'Free'}
                 </a>
             </div>`;
-            break;
-        default:
-            if(p.widget === 'standard') return ''; 
-            html = getWidgetHTML(p);
-    }
-    return html;
-}
-
-// --- LOGIC ---
-
-function startIntervals() {
-    setInterval(() => {
-        document.querySelectorAll('.live-clock').forEach(el => {
-            const time = new Date().toLocaleTimeString('en-US', { timeZone: el.dataset.tz, hour: '2-digit', minute: '2-digit', hour12: false });
-            el.querySelector('.clock-time').innerText = time;
-        });
-    }, 1000);
-}
-
-function handleTileClick(p) {
-    playSound('click');
-    document.getElementById(`tile-${p.id}`).classList.add('visited');
-    if(p.widget === 'cv' && p.custom.fileUrl) return window.open(p.custom.fileUrl, '_blank');
-    if(p.action === 'link' && p.url) return window.open(p.url, '_blank');
-    openSheet(p);
-}
-
-function openSheet(p) {
-    const sheet = document.getElementById('sheet-main');
-    const body = document.getElementById('sheet-body');
-    const title = document.getElementById('sheet-title');
-    
-    title.innerText = p.title;
-    
-    const fullContent = getWidgetFullContent(p);
-    
-    if (fullContent && p.widget !== 'standard') {
-        body.innerHTML = fullContent;
-    } else {
-        // Render estándar (Proyecto Detallado con Bloques)
-        let html = `<div style="max-width:680px; margin:0 auto; padding-bottom:50px;">`;
-        if(p.bgImage) html += `<img src="${p.bgImage}" style="width:100%; height:320px; object-fit:cover; border-radius:20px; margin-bottom:30px; box-shadow:var(--shadow-md);">`;
-        
-        html += `<div style="font-size:1.1rem; line-height:1.7; color:var(--text-primary);">`;
-        
-        // Renderizar bloques si existen
-        if(p.blocks && p.blocks.length > 0) {
-            p.blocks.forEach(b => {
-                if(b.type === 'text') html += `<p style="margin-bottom:24px">${b.content.replace(/\n/g, '<br>')}</p>`;
-                if(b.type === 'image') html += `<img src="${b.url}" style="width:100%; border-radius:16px; margin:24px 0; box-shadow:var(--shadow-sm);">`;
-            });
-        } else {
-            html += `<p>${p.desc}</p>`;
+                    break;
+                default:
+                    if (p.widget === 'standard') return '';
+                    html = getWidgetHTML(p);
+            }
+            return html;
         }
-        
-        if(p.url) html += `<div style="margin-top:40px; text-align:center;"><a href="${p.url}" target="_blank" class="pill active" style="padding:15px 40px; text-decoration:none;">Ver Proyecto Online</a></div>`;
-        html += `</div></div>`;
-        body.innerHTML = html;
-        document.getElementById('share-btn').style.display = 'flex';
-    }
-    
-    document.getElementById('sheet-overlay').classList.add('active');
-}
 
-function closeSheet() {
-    document.getElementById('sheet-overlay').classList.remove('active');
-}
+        // GSAP Plugins
+        gsap.registerPlugin(ScrollTrigger);
 
-function openHelp() {
-    if(!state.config.showHelp && !state.isAdmin) return;
-    document.getElementById('sheet-title').innerText = state.config.helpTitle;
-    document.getElementById('sheet-body').innerHTML = state.config.helpContent;
-    document.getElementById('sheet-overlay').classList.add('active');
-}
+        function showNotification(title, desc) {
+            const notif = document.getElementById('global-notification');
+            document.getElementById('notif-title').innerText = title;
+            document.getElementById('notif-desc').innerText = desc;
+            // Icon stays as the SVG set in HTML
 
-// --- UTILS ---
-function toggleTheme() {
-    state.theme = state.theme === 'light' ? 'dark' : 'light';
-    document.documentElement.dataset.theme = state.theme;
-}
+            notif.classList.add('active');
+            playSound('pop');
 
-function filterGrid(cat, el) {
-    document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
-    if(el) el.classList.add('active');
-    state.filter = cat;
-    renderGrid();
-}
+            setTimeout(() => {
+                notif.classList.remove('active');
+            }, 4000);
+        }
 
-function updateHelpVisibility() {
-    return;
-}
+        function openPortadaManager() {
+            const current = state.projects.find(p => p.isPortada);
+            let sel = state.projects.map(p => `
+                <div style="display:flex; align-items:center; gap:14px; padding:14px; border-radius:16px; background:${p.isPortada ? 'rgba(255,59,48,0.1)' : 'rgba(0,0,0,0.03)'}; margin-bottom:10px; cursor:pointer; transition:0.2s; border:${p.isPortada ? '1.5px solid rgba(255,59,48,0.3)' : '1.5px solid transparent'};"
+                    onclick="setPortada(${p.id})">
+                    <div style="width:50px; height:50px; border-radius:12px; background:rgba(0,0,0,0.08); overflow:hidden; flex-shrink:0;">
+                        ${p.bgImage ? `<img src="${p.bgImage}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:1.3rem;">${categoryIcons[p.category] || ''}</div>`}
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-weight:700; font-size:0.95rem; margin-bottom:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${p.title || 'Sin título'}</div>
+                        <div style="font-size:0.8rem; color:var(--text-secondary);">${p.widget} &middot; ${p.category}</div>
+                    </div>
+                    ${p.isPortada ? `<div style="background:rgba(255,59,48,0.12); color:#ff3b30; padding:5px 12px; border-radius:20px; font-size:0.75rem; font-weight:700; white-space:nowrap;">Portada Activa</div>` : `<div style="color:var(--text-secondary); font-size:0.8rem;">Seleccionar</div>`}
+                </div>
+            `).join('');
 
-function checkHash() {
-    const hash = window.location.hash;
-    if(hash.startsWith('#project-')) {
-        const id = parseInt(hash.replace('#project-',''));
-        const p = state.projects.find(x => x.id === id);
-        if(p) openSheet(p);
-    }
-}
+            document.getElementById('sheet-title').innerText = 'Gestionar Portada';
+            document.getElementById('sheet-body').innerHTML = `
+                <div style="padding-bottom:40px;">
+                    <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:20px;">Selecciona el proyecto que aparecerá como portada principal. Solo puede haber uno activo a la vez.</p>
+                    ${sel}
+                    <button class="pill" style="margin-top:10px; background:rgba(0,0,0,0.05); color:var(--text-secondary); width:100%; justify-content:center; padding:14px;" onclick="setPortada(null)">Sin portada</button>
+                </div>
+            `;
+            document.getElementById('sheet-overlay').classList.add('active');
+        }
 
-function playSound(type) {
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    osc.connect(gain); gain.connect(audioContext.destination);
-    if(type==='click'){osc.frequency.value=600;gain.gain.value=0.05;osc.start();osc.stop(audioContext.currentTime+0.05);}
-    if(type==='hover'){osc.frequency.value=300;gain.gain.value=0.01;osc.start();osc.stop(audioContext.currentTime+0.03);}
-    if(type==='switch'){osc.frequency.value=400;gain.gain.value=0.05;osc.type='triangle';osc.start();osc.stop(audioContext.currentTime+0.1);}
-    if(type==='pop'){osc.frequency.value=800;gain.gain.value=0.05;osc.type='sine';osc.start();osc.stop(audioContext.currentTime+0.1);}
-}
-
-function setupListeners() {
-    document.addEventListener('keydown', (e) => {
-        if((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); toggleCmd(); }
-        if(e.key === 'Escape') { closeSheet(); document.getElementById('cmd-overlay').classList.remove('active'); }
-    });
-    document.getElementById('cmd-input').addEventListener('input', (e) => renderCmdResults(e.target.value));
-}
-
-function toggleCmd() {
-    document.getElementById('cmd-overlay').classList.toggle('active');
-    if(document.getElementById('cmd-overlay').classList.contains('active')) {
-        document.getElementById('cmd-input').focus();
-        renderCmdResults('');
-    }
-}
-
-function renderCmdResults(q) {
-    const list = document.getElementById('cmd-list');
-    list.innerHTML = '';
-    const term = q.toLowerCase();
-    
-    const system = [
-        { title: '🌙 Cambiar Tema', action: toggleTheme },
-        { title: '🆘 Abrir Ayuda', action: openHelp },
-        { title: '🔒 Admin Login', action: toggleAdmin }
-    ];
-    
-    const matches = state.projects.filter(p => p.title.toLowerCase().includes(term));
-    
-    [...system, ...matches].forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'cmd-item';
-        div.innerHTML = `<span>${item.title}</span> <span style="font-size:0.8rem; color:var(--text-secondary)">Enter</span>`;
-        div.onclick = () => { 
-            (item.action || (()=>handleTileClick(item)))(); 
-            toggleCmd(); 
-        };
-        list.appendChild(div);
-    });
-}
-function copyText(t) { navigator.clipboard.writeText(t); alert("Copiado: "+t); }
-function shareContent() { navigator.clipboard.writeText(window.location.href); alert("Enlace copiado"); }
-
-// --- ADMIN & EDITOR ---
-function toggleAdmin() {
-    if(!state.isAdmin) {
-        if(prompt("Contraseña:") === "9556") {
-            state.isAdmin = true;
-            document.getElementById('admin-actions').style.display = 'flex';
-            document.getElementById('btn-login').style.display = 'none';
-            
-            new Sortable(document.getElementById('grid'), { 
-                animation: 150, 
-                ghostClass: 'tile-ghost',
-                onEnd: (evt) => {
-                    const item = state.projects.splice(evt.oldIndex, 1)[0];
-                    state.projects.splice(evt.newIndex, 0, item);
-                    saveData();
-                }
-            });
+        window.setPortada = (id) => {
+            state.projects.forEach(p => p.isPortada = false);
+            if (id !== null) {
+                const p = state.projects.find(x => x.id == id);
+                if (p) p.isPortada = true;
+            }
+            saveData();
+            closeSheet();
             renderGrid();
-            updateHelpVisibility();
+            showNotification('Portada actualizada', id ? 'Proyecto establecido como portada.' : 'Portada desactivada.');
+        };
+
+        // --- LOGIC ---
+
+        function startIntervals() {
+            setInterval(() => {
+                document.querySelectorAll('.live-clock').forEach(el => {
+                    const time = new Date().toLocaleTimeString('en-US', { timeZone: el.dataset.tz, hour: '2-digit', minute: '2-digit', hour12: false });
+                    el.querySelector('.clock-time').innerText = time;
+                });
+            }, 1000);
         }
-    } else {
-        state.isAdmin = false;
-        window.location.reload();
-    }
-}
 
-function saveData() { localStorage.setItem('portfolio_v14', JSON.stringify(state.projects)); }
-function deleteTile(id) { if(confirm("¿Seguro que quieres borrar este elemento?")) { state.projects = state.projects.filter(x => x.id !== id); saveData(); renderGrid(); } }
+        function handleTileClick(p) {
+            playSound('click');
+            const tileEl = document.getElementById(`tile-${p.id}`);
+            if (tileEl) tileEl.classList.add('visited'); // Only if tile exists in grid
+            if (p.widget === 'cv' && p.custom.fileUrl) return window.open(p.custom.fileUrl, '_blank');
+            if (p.action === 'link' && p.url) return window.open(p.url, '_blank');
+            openSheet(p);
+        }
 
-// --- FUNCIÓN DE EXPORTACIÓN MEJORADA ---
-function exportData() {
-    const json = JSON.stringify(state.projects, null, 4);
-    navigator.clipboard.writeText(json);
-    
-    const html = `
+        function openSheet(p) {
+            const sheet = document.getElementById('sheet-main');
+            const body = document.getElementById('sheet-body');
+            const title = document.getElementById('sheet-title');
+
+            title.innerText = p.title || "Detalle";
+
+            // GSAP Sheet Animation
+            gsap.set(sheet, { y: "100%" });
+            document.getElementById('sheet-overlay').classList.add('active');
+            gsap.to(sheet, { y: 0, duration: 0.6, ease: "expo.out" });
+
+            const fullContent = getWidgetFullContent(p);
+
+            if (fullContent && p.widget !== 'standard') {
+                body.innerHTML = fullContent;
+            } else {
+                // Render moderno de artículo
+                let html = `<div class="article-container">`;
+
+                if (p.bgImage) html += `<img src="${p.bgImage}" class="article-image" style="height:400px; object-fit:cover;">`;
+
+                html += `<h1 class="article-title">${p.title}</h1>`;
+                html += `<div class="article-meta" style="display:flex; gap:15px; margin-bottom:25px; font-size:0.85rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.5px;">
+                    <span style="display:flex; align-items:center; gap:6px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        ${p.category.toUpperCase()}
+                    </span>
+                    <span style="display:flex; align-items:center; gap:6px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        ${new Date(p.id).toLocaleDateString()}
+                    </span>
+                </div>`;
+
+                html += `<div class="article-body">`;
+
+                if (p.blocks && p.blocks.length > 0) {
+                    p.blocks.forEach(b => {
+                        if (b.type === 'text') {
+                            html += `<p>${b.content.replace(/\n/g, '<br>')}</p>`;
+                        } else if (b.type === 'image') {
+                            html += `<img src="${b.url}" class="article-image">`;
+                        } else if (b.type === 'appstore') {
+                            html += `<div class="app-store-block" onclick="window.open('${b.url}', '_blank')">
+                                <img src="${b.icon || 'https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/1a/d0/52/1ad05212-8063-2a70-1999-e052e65790e6/Placeholder.mill/400x400bb-75.webp'}" style="width:64px; height:64px; border-radius:14px;">
+                                <div style="flex:1">
+                                    <h4 style="margin:0; font-size:1.1rem">${b.name || 'App Title'}</h4>
+                                    <p style="margin:2px 0 0; font-size:0.85rem; color:var(--text-secondary)">Download on the App Store</p>
+                                </div>
+                                <button class="app-btn">GET</button>
+                            </div>`;
+                        }
+                    });
+                } else {
+                    html += `<p>${p.desc}</p>`;
+                }
+
+                if (p.url) html += `<div style="margin-top:40px; text-align:center;"><a href="${p.url}" target="_blank" class="pill active" style="padding:16px 48px; text-decoration:none; font-size:1.1rem">Ver Proyecto Online</a></div>`;
+
+                if (p.custom && p.custom.appStoreLink) {
+                    html += `<div style="margin-top:20px; text-align:center;">
+                        <a href="${p.custom.appStoreLink}" target="_blank">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" style="height:44px;">
+                        </a>
+                    </div>`;
+                }
+
+                html += `</div></div>`;
+                body.innerHTML = html;
+                document.getElementById('share-btn').style.display = 'flex';
+
+                // Animate article content
+                gsap.from(".article-container > *", { opacity: 0, y: 20, stagger: 0.1, duration: 0.8, ease: "expo.out", delay: 0.2 });
+            }
+        }
+
+        function closeSheet() {
+            document.getElementById('sheet-overlay').classList.remove('active');
+        }
+
+        function openHelp() {
+            if (!state.config.showHelp && !state.isAdmin) return;
+            document.getElementById('sheet-title').innerText = state.config.helpTitle;
+            document.getElementById('sheet-body').innerHTML = state.config.helpContent;
+            document.getElementById('sheet-overlay').classList.add('active');
+        }
+
+        // --- UTILS ---
+        function toggleTheme() {
+            state.theme = state.theme === 'light' ? 'dark' : 'light';
+            document.documentElement.dataset.theme = state.theme;
+        }
+
+        function filterGrid(cat, el) {
+            document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+            if (el) el.classList.add('active');
+            state.filter = cat;
+            renderGrid();
+            renderQuienSoy();
+        }
+
+        function updateHelpVisibility() {
+            return;
+        }
+
+        function checkHash() {
+            const hash = window.location.hash;
+            if (hash.startsWith('#project-')) {
+                const id = parseInt(hash.replace('#project-', ''));
+                const p = state.projects.find(x => x.id === id);
+                if (p) openSheet(p);
+            }
+        }
+
+        function playSound(type) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            if (type === 'click') { osc.frequency.value = 600; gain.gain.value = 0.05; osc.start(); osc.stop(audioContext.currentTime + 0.05); }
+            if (type === 'hover') { osc.frequency.value = 300; gain.gain.value = 0.01; osc.start(); osc.stop(audioContext.currentTime + 0.03); }
+            if (type === 'switch') { osc.frequency.value = 400; gain.gain.value = 0.05; osc.type = 'triangle'; osc.start(); osc.stop(audioContext.currentTime + 0.1); }
+            if (type === 'pop') { osc.frequency.value = 800; gain.gain.value = 0.05; osc.type = 'sine'; osc.start(); osc.stop(audioContext.currentTime + 0.1); }
+        }
+
+        function setupListeners() {
+            document.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); toggleCmd(); }
+                if (e.key === 'Escape') { closeSheet(); document.getElementById('cmd-overlay').classList.remove('active'); }
+            });
+            document.getElementById('cmd-input').addEventListener('input', (e) => renderCmdResults(e.target.value));
+        }
+
+        function toggleCmd() {
+            document.getElementById('cmd-overlay').classList.toggle('active');
+            if (document.getElementById('cmd-overlay').classList.contains('active')) {
+                document.getElementById('cmd-input').focus();
+                renderCmdResults('');
+            }
+        }
+
+        function renderCmdResults(q) {
+            const list = document.getElementById('cmd-list');
+            list.innerHTML = '';
+            const term = q.toLowerCase();
+
+            const system = [
+                { title: 'Cambiar Tema', action: toggleTheme },
+                { title: 'Abrir Ayuda', action: openHelp },
+                { title: 'Admin Login', action: toggleAdmin }
+            ];
+
+            const matches = state.projects.filter(p => p.title.toLowerCase().includes(term));
+
+            [...system, ...matches].forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'cmd-item';
+                div.innerHTML = `<span>${item.title}</span> <span style="font-size:0.7rem; color:var(--text-secondary); background:rgba(0,0,0,0.05); padding:2px 6px; border-radius:4px; font-weight:700; letter-spacing:0.5px;">ENTER</span>`;
+                div.onclick = () => {
+                    (item.action || (() => handleTileClick(item)))();
+                    toggleCmd();
+                };
+                list.appendChild(div);
+            });
+        }
+        function copyText(t) { navigator.clipboard.writeText(t); alert("Copiado: " + t); }
+        function shareContent() { navigator.clipboard.writeText(window.location.href); alert("Enlace copiado"); }
+
+        // --- ADMIN & EDITOR ---
+        function openLoginModal() {
+            const modal = document.getElementById('login-modal-overlay');
+            modal.style.display = 'flex';
+            document.getElementById('login-pin-input').value = '';
+            document.getElementById('login-error-msg').textContent = '';
+            setTimeout(() => document.getElementById('login-pin-input').focus(), 100);
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal-overlay').style.display = 'none';
+        }
+
+        function submitLogin() {
+            const pin = document.getElementById('login-pin-input').value;
+            if (pin === '9556') {
+                closeLoginModal();
+                state.isAdmin = true;
+
+                const actions = document.getElementById('admin-actions');
+                const loginBtn = document.getElementById('btn-login');
+                if (actions) actions.style.display = 'flex';
+                if (loginBtn) loginBtn.style.display = 'none';
+
+                if (typeof Sortable !== 'undefined' && document.getElementById('grid')) {
+                    new Sortable(document.getElementById('grid'), {
+                        animation: 150,
+                        ghostClass: 'tile-ghost',
+                        onEnd: (evt) => {
+                            const item = state.projects.splice(evt.oldIndex, 1)[0];
+                            state.projects.splice(evt.newIndex, 0, item);
+                            saveData();
+                        }
+                    });
+                }
+
+                renderGrid();
+                renderQuienSoy();
+                if (typeof updateHelpVisibility === 'function') updateHelpVisibility();
+                showNotification('Admin', 'Bienvenido al panel de administración.');
+            } else {
+                document.getElementById('login-error-msg').textContent = 'Contraseña incorrecta';
+                document.getElementById('login-pin-input').value = '';
+                document.getElementById('login-pin-input').focus();
+            }
+        }
+
+        function toggleAdmin() {
+            if (!state.isAdmin) {
+                openLoginModal();
+            } else {
+                state.isAdmin = false;
+                window.location.reload();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('portfolio_v14', JSON.stringify(state.projects));
+            localStorage.setItem('portfolio_quiensoy', JSON.stringify(state.quienSoy));
+        }
+        function deleteTile(id) { if (confirm("¿Seguro que quieres borrar este elemento?")) { state.projects = state.projects.filter(x => x.id !== id); saveData(); renderGrid(); } }
+
+        // ============================================================
+        // QUIEN SOY — Renderer + Animations + Admin Manager
+        // ============================================================
+        function renderQuienSoy() {
+            const container = document.getElementById('quien-soy-container');
+            if (!container) return;
+
+            // Only show in 'all' filter
+            if (state.filter !== 'all') {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+
+            const qs = state.quienSoy;
+
+            // Build orbit chips HTML (positioned around ring)
+            const chipAngles = [0, 60, 120, 180, 240, 300];
+            const chips = (qs.orbits || []).map((label, i) => {
+                const angle = chipAngles[i % chipAngles.length];
+                const rad = (angle * Math.PI) / 180;
+                const r = 115; // orbit radius
+                const x = Math.cos(rad) * r;
+                const y = Math.sin(rad) * r;
+                return `<div class="qs-orbit-chip" id="qs-chip-${i}" style="left:calc(50% + ${x}px - 40px); top:calc(50% + ${y}px - 16px);">${label}</div>`;
+            }).join('');
+
+            // Build timeline HTML
+            const timeline = (qs.education || []).map((edu, i) => `
+                <div class="qs-timeline-item">
+                    <div class="qs-timeline-left">
+                        <div class="qs-timeline-dot ${edu.active ? 'active' : ''}"></div>
+                        ${i < (qs.education.length - 1) ? '<div class="qs-timeline-line"></div>' : ''}
+                    </div>
+                    <div class="qs-timeline-content">
+                        <div class="qs-timeline-title">${edu.title}</div>
+                        <div class="qs-timeline-place">${edu.place}</div>
+                        <div class="qs-timeline-year">${edu.year}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Build skills chips
+            const skillChips = (qs.skills || []).map(s => `<div class="qs-chip">${s}</div>`).join('');
+
+            // Build interests chips
+            const interestChips = (qs.interests || []).map(s => `<div class="qs-chip" style="background:rgba(255,149,0,0.07); color:var(--accent-orange); border-color:rgba(255,149,0,0.15);">${s}</div>`).join('');
+
+            container.innerHTML = `
+                <div class="qs-section">
+                    <div class="qs-header">
+                        <div class="qs-label">Portfolio</div>
+                        <div class="qs-title">¿Quién Soy?</div>
+
+                        <!-- Orbit Showcase -->
+                        <div class="qs-orbit-scene" id="qs-orbit-scene">
+                            <div class="qs-ring qs-ring-1" id="qs-ring-1"></div>
+                            <div class="qs-ring qs-ring-2" id="qs-ring-2"></div>
+                            <div class="qs-ring qs-ring-3" id="qs-ring-3"></div>
+                            <div class="qs-photo"></div>
+                            ${chips}
+                        </div>
+
+                        <p class="qs-bio">${qs.bio}</p>
+                    </div>
+
+                    <div class="qs-layout">
+                        <div class="qs-card" id="qs-card-edu">
+                            <div class="qs-card-title">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                                Formación
+                            </div>
+                            <div class="qs-timeline">${timeline}</div>
+                        </div>
+
+                        <div class="qs-card" id="qs-card-skills">
+                            <div class="qs-card-title">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                                Skills
+                            </div>
+                            <div class="qs-chips">${skillChips}</div>
+                        </div>
+
+                        <div class="qs-card qs-full" id="qs-card-interests">
+                            <div class="qs-card-title">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                Intereses
+                            </div>
+                            <div class="qs-chips">${interestChips}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Run scroll animations after render
+            requestAnimationFrame(() => initQuienSoyAnimations());
+        }
+
+        function initQuienSoyAnimations() {
+            // Remove existing QS triggers
+            ScrollTrigger.getAll().filter(t => t.vars._qs).forEach(t => t.kill());
+
+            const scene = document.getElementById('qs-orbit-scene');
+            if (!scene) return;
+
+            const ring1 = document.getElementById('qs-ring-1');
+            const ring2 = document.getElementById('qs-ring-2');
+            const ring3 = document.getElementById('qs-ring-3');
+
+            // Ring rotation on scroll
+            if (ring1) {
+                gsap.to(ring1, {
+                    rotation: 360,
+                    ease: "none",
+                    scrollTrigger: { trigger: scene, start: "top 80%", end: "bottom 20%", scrub: 2, _qs: true }
+                });
+            }
+            if (ring2) {
+                gsap.to(ring2, {
+                    rotation: -360,
+                    ease: "none",
+                    scrollTrigger: { trigger: scene, start: "top 80%", end: "bottom 20%", scrub: 3, _qs: true }
+                });
+            }
+            if (ring3) {
+                gsap.to(ring3, {
+                    rotation: 180,
+                    ease: "none",
+                    scrollTrigger: { trigger: scene, start: "top 80%", end: "bottom 20%", scrub: 4, _qs: true }
+                });
+            }
+
+            // Chips appear one by one on scroll
+            const chips = document.querySelectorAll('.qs-orbit-chip');
+            chips.forEach((chip, i) => {
+                ScrollTrigger.create({
+                    trigger: scene,
+                    start: `top ${75 - i * 5}%`,
+                    _qs: true,
+                    onEnter: () => chip.classList.add('visible'),
+                    onLeaveBack: () => chip.classList.remove('visible')
+                });
+            });
+
+            // Scroll-reveal cards
+            const cards = document.querySelectorAll('.qs-card');
+            cards.forEach((card, i) => {
+                ScrollTrigger.create({
+                    trigger: card,
+                    start: "top 85%",
+                    _qs: true,
+                    onEnter: () => {
+                        setTimeout(() => card.classList.add('revealed'), i * 120);
+                    }
+                });
+            });
+
+            ScrollTrigger.refresh();
+        }
+
+        function openQuienSoyManager() {
+            const qs = state.quienSoy;
+
+            const educationRows = (qs.education || []).map((edu, i) => `
+                <div class="editor-card" style="padding:14px 18px; margin-bottom:10px;" id="qs-edu-${i}">
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input class="editor-input" style="flex:2" placeholder="Título" value="${edu.title}" id="qs-edu-title-${i}">
+                        <input class="editor-input" style="flex:1" placeholder="Lugar" value="${edu.place}" id="qs-edu-place-${i}">
+                        <input class="editor-input" style="flex:1; font-size:0.8rem;" placeholder="Año" value="${edu.year}" id="qs-edu-year-${i}">
+                        <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; font-weight:700; white-space:nowrap;">
+                            <input type="checkbox" id="qs-edu-active-${i}" ${edu.active ? 'checked' : ''}> Actual
+                        </label>
+                        <button onclick="document.getElementById('qs-edu-${i}').remove()" style="background:rgba(255,59,48,0.1); color:var(--accent); border:none; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:700;">×</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('sheet-title').innerText = '¿Quién Soy? — Editor';
+            document.getElementById('sheet-body').innerHTML = `
+                <div style="padding-bottom:60px;">
+                    <div class="editor-card">
+                        <label class="qs-card-title" style="font-size:0.8rem;">Bio Personal</label>
+                        <textarea class="editor-input" id="qs-bio" rows="4" placeholder="Tu descripción...">${qs.bio}</textarea>
+                    </div>
+
+                    <div class="editor-card">
+                        <label class="qs-card-title" style="font-size:0.8rem;">Orbits (etiquetas alrededor de la foto)</label>
+                        <input class="editor-input" id="qs-orbits" value="${(qs.orbits || []).join(', ')}" placeholder="iOS Developer, Diseñador, ...">
+                        <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:8px;">Separar con comas. Máximo 6 etiquetas.</div>
+                    </div>
+
+                    <div class="editor-card">
+                        <label class="qs-card-title" style="font-size:0.8rem;">Formación</label>
+                        <div id="qs-edu-list">${educationRows}</div>
+                        <button class="pill" style="margin-top:12px; background:rgba(0,0,0,0.04); width:100%; justify-content:center;" onclick="addQsEdu()">+ Añadir etapa</button>
+                    </div>
+
+                    <div class="editor-card">
+                        <label class="qs-card-title" style="font-size:0.8rem;">Skills</label>
+                        <input class="editor-input" id="qs-skills" value="${(qs.skills || []).join(', ')}" placeholder="iOS, Figma, JavaScript, ...">
+                    </div>
+
+                    <div class="editor-card">
+                        <label class="qs-card-title" style="font-size:0.8rem;">Intereses</label>
+                        <input class="editor-input" id="qs-interests" value="${(qs.interests || []).join(', ')}" placeholder="Música, Viajes, ...">
+                    </div>
+
+                    <button class="pill active" style="width:100%; justify-content:center; padding:16px; font-size:1rem; margin-top:10px;" onclick="saveQuienSoy()">Guardar Cambios</button>
+                </div>
+            `;
+
+            window.addQsEdu = () => {
+                const list = document.getElementById('qs-edu-list');
+                const i = list.children.length;
+                const div = document.createElement('div');
+                div.className = 'editor-card';
+                div.style.cssText = 'padding:14px 18px; margin-bottom:10px;';
+                div.id = `qs-edu-${i}`;
+                div.innerHTML = `
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input class="editor-input" style="flex:2" placeholder="Título" id="qs-edu-title-${i}" value="">
+                        <input class="editor-input" style="flex:1" placeholder="Lugar" id="qs-edu-place-${i}" value="">
+                        <input class="editor-input" style="flex:1; font-size:0.8rem;" placeholder="Año" id="qs-edu-year-${i}" value="">
+                        <label style="display:flex; align-items:center; gap:6px; font-size:0.8rem; font-weight:700; white-space:nowrap;">
+                            <input type="checkbox" id="qs-edu-active-${i}"> Actual
+                        </label>
+                        <button onclick="document.getElementById('qs-edu-${i}').remove()" style="background:rgba(255,59,48,0.1); color:var(--accent); border:none; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:700;">×</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            };
+
+            window.saveQuienSoy = () => {
+                // Gather education
+                const eduList = document.getElementById('qs-edu-list');
+                const eduItems = Array.from(eduList.querySelectorAll('[id^="qs-edu-title-"]')).map((el, i) => ({
+                    title: el.value,
+                    place: document.getElementById(`qs-edu-place-${i}`)?.value || '',
+                    year: document.getElementById(`qs-edu-year-${i}`)?.value || '',
+                    active: document.getElementById(`qs-edu-active-${i}`)?.checked || false
+                })).filter(edu => edu.title);
+
+                state.quienSoy = {
+                    bio: document.getElementById('qs-bio').value,
+                    photo: 'ft.jpeg',
+                    education: eduItems,
+                    skills: document.getElementById('qs-skills').value.split(',').map(s => s.trim()).filter(Boolean),
+                    interests: document.getElementById('qs-interests').value.split(',').map(s => s.trim()).filter(Boolean),
+                    orbits: document.getElementById('qs-orbits').value.split(',').map(s => s.trim()).filter(Boolean).slice(0, 6)
+                };
+
+                saveData();
+                renderQuienSoy();
+                showNotification('Guardado', '¿Quién Soy? actualizado correctamente.');
+            };
+
+            document.getElementById('sheet-overlay').classList.add('active');
+        }
+
+
+        // --- FUNCIÓN DE EXPORTACIÓN MEJORADA ---
+        function exportData() {
+            const json = JSON.stringify(state.projects, null, 4);
+            navigator.clipboard.writeText(json);
+
+            const html = `
         <div style="padding-bottom:40px;">
-            <h2 style="margin-bottom:20px;">💾 Copia de Seguridad</h2>
+            <h2 style="margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v13a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Copia de Seguridad
+            </h2>
             
             <div style="background:#e8f5e9; color:#2e7d32; padding:15px; border-radius:12px; margin-bottom:20px; font-size:0.9rem; border:1px solid #c8e6c9;">
                 <strong>¡Copiado al portapapeles!</strong><br>
@@ -893,35 +2884,43 @@ function exportData() {
              <button class="pill active" style="width:100%; justify-content:center; padding:16px;" onclick="closeSheet()">Entendido</button>
         </div>
     `;
-    
-    document.getElementById('sheet-title').innerText = "Exportar / Guardar";
-    document.getElementById('sheet-body').innerHTML = html;
-    document.getElementById('sheet-overlay').classList.add('active');
-}
 
-function openEditor(id) {
-    const p = id ? state.projects.find(x => x.id === id) : { id: Date.now(), title: 'Nuevo', widget: 'standard', custom: {} };
-    const widgetOptions = Object.keys(WIDGETS).map(k => `<option value="${k}" ${p.widget===k?'selected':''}>${WIDGETS[k].label}</option>`).join('');
-    
-    const html = `
+            document.getElementById('sheet-title').innerText = "Exportar / Guardar";
+            document.getElementById('sheet-body').innerHTML = html;
+            document.getElementById('sheet-overlay').classList.add('active');
+        }
+
+        function openEditor(id) {
+            const p = id ? state.projects.find(x => x.id === id) : { id: Date.now(), title: 'Nuevo', widget: 'standard', custom: {} };
+            const widgetOptions = Object.keys(WIDGETS).map(k => `<option value="${k}" ${p.widget === k ? 'selected' : ''}>${WIDGETS[k].label}</option>`).join('');
+
+            const html = `
         <div style="padding-bottom:40px;">
             <h2 style="margin-bottom:20px;">${id ? 'Editar Proyecto' : 'Crear Nuevo'}</h2>
             
             <div class="editor-card">
                 <label style="display:block; margin-bottom:8px; font-weight:700; font-size:0.8rem; text-transform:uppercase; color:var(--text-secondary)">Información Básica</label>
-                <input class="editor-input" id="ed-title" value="${p.title||''}" placeholder="Título Principal" style="margin-bottom:10px;">
-                <input class="editor-input" id="ed-desc" value="${p.desc||''}" placeholder="Subtítulo / Descripción corta">
+                <input class="editor-input" id="ed-title" value="${p.title || ''}" placeholder="Título Principal" style="margin-bottom:10px;">
+                <input class="editor-input" id="ed-desc" value="${p.desc || ''}" placeholder="Subtítulo / Descripción corta">
+                
+                <div style="margin-top:10px; display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.03); padding:10px; border-radius:12px;">
+                    <input type="checkbox" id="ed-isPortada" ${p.isPortada ? 'checked' : ''} style="width:18px; height:18px;">
+                    <label for="ed-isPortada" style="font-size:0.9rem; font-weight:600;">Usar como Portada (Cover Highlight)</label>
+                </div>
                 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
                      <select class="editor-select" id="ed-cat">
-                        <option value="design" ${p.category==='design'?'selected':''}>Diseño</option>
-                        <option value="code" ${p.category==='code'?'selected':''}>Código</option>
-                        <option value="life" ${p.category==='life'?'selected':''}>Lifestyle</option>
+                        <option value="design" ${p.category === 'design' ? 'selected' : ''}>Diseño</option>
+                        <option value="code" ${p.category === 'code' ? 'selected' : ''}>Código</option>
+                        <option value="life" ${p.category === 'life' ? 'selected' : ''}>Lifestyle</option>
                      </select>
                      <select class="editor-select" id="ed-shape">
-                        <option value="tile" ${p.shape==='tile'?'selected':''}>Cuadrado (1x1)</option>
-                        <option value="wide" ${p.shape==='wide'?'selected':''}>Ancho (2x1)</option>
-                        <option value="small" ${p.shape==='small'?'selected':''}>Pequeño (0.5x1)</option>
+                        <option value="tile" ${p.shape === 'tile' ? 'selected' : ''}>Cuadrado (1x1)</option>
+                        <option value="wide" ${p.shape === 'wide' ? 'selected' : ''}>Ancho (2x1)</option>
+                        <option value="tall" ${p.shape === 'tall' ? 'selected' : ''}>Alto (1x2)</option>
+                        <option value="small" ${p.shape === 'small' ? 'selected' : ''}>Pequeño (0.5x1)</option>
+                        <option value="portrait" ${p.shape === 'portrait' ? 'selected' : ''}>Retrato (1x2 estrecho)</option>
+                        <option value="extra-wide" ${p.shape === 'extra-wide' ? 'selected' : ''}>Ultra Ancho (2x2)</option>
                      </select>
                 </div>
             </div>
@@ -947,119 +2946,129 @@ function openEditor(id) {
             
              <div class="editor-card" id="project-options">
                 <label style="display:block; margin-bottom:8px; font-weight:700; font-size:0.8rem; text-transform:uppercase; color:var(--text-secondary)">Multimedia & Enlaces</label>
-                <input class="editor-input" id="ed-bg" value="${p.bgImage||''}" placeholder="URL Imagen Fondo (https://...)">
-                <input class="editor-input" id="ed-url" value="${p.url||''}" placeholder="URL Externa (Link al hacer click)" style="margin-top:10px;">
+                <input class="editor-input" id="ed-bg" value="${p.bgImage || ''}" placeholder="URL Imagen Fondo (https://...)">
+                <input class="editor-input" id="ed-url" value="${p.url || ''}" placeholder="URL Externa (Link al hacer click)" style="margin-top:10px;">
             </div>
             
             <button class="pill active" style="width:100%; justify-content:center; padding:16px; font-size:1rem;" onclick="saveProject(${p.id})">Guardar Cambios</button>
         </div>
     `;
-    
-    document.getElementById('sheet-title').innerText = "Editor";
-    document.getElementById('sheet-body').innerHTML = html;
-    document.getElementById('sheet-overlay').classList.add('active');
-    
-    // Función para añadir bloques al DOM
-    window.addEditorBlock = (type, value = '') => {
-        const div = document.createElement('div');
-        div.className = 'block-item';
-        div.dataset.type = type;
-        
-        let inputHtml = '';
-        if(type === 'text') {
-            inputHtml = `<textarea class="editor-input block-input" rows="3" placeholder="Escribe aquí tu párrafo...">${value}</textarea>`;
-        } else {
-            inputHtml = `<input class="editor-input block-input" value="${value}" placeholder="URL de la imagen (https://...)">`;
-        }
-        
-        div.innerHTML = `
-            <div class="block-handle">☰</div>
+
+            document.getElementById('sheet-title').innerText = "Editor";
+            document.getElementById('sheet-body').innerHTML = html;
+            document.getElementById('sheet-overlay').classList.add('active');
+
+            // Función para añadir bloques al DOM
+            window.addEditorBlock = (type, value = '') => {
+                const div = document.createElement('div');
+                div.className = 'block-item';
+                div.dataset.type = type;
+
+                let inputHtml = '';
+                if (type === 'text') {
+                    inputHtml = `<textarea class="editor-input block-input" rows="3" placeholder="Escribe aquí tu párrafo...">${value}</textarea>`;
+                } else {
+                    inputHtml = `<input class="editor-input block-input" value="${value}" placeholder="URL de la imagen (https://...)">`;
+                }
+
+                div.innerHTML = `
+            <div class="block-handle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div>
             <div class="block-content">
                 <div style="font-size:0.7rem; color:var(--accent); margin-bottom:4px; text-transform:uppercase; font-weight:700;">${type === 'text' ? 'Párrafo' : 'Imagen'}</div>
                 ${inputHtml}
             </div>
             <button class="block-remove" onclick="this.parentElement.remove()">×</button>
         `;
-        document.getElementById('blocks-list').appendChild(div);
-    };
+                document.getElementById('blocks-list').appendChild(div);
+            };
 
-    window.renderEditorFields = () => {
-        const type = document.getElementById('ed-widget').value;
-        const conf = WIDGETS[type];
-        document.getElementById('widget-desc-box').innerHTML = `<strong>${conf.label}:</strong> ${conf.desc}`;
-        
-        // Render Custom Fields
-        let fieldsHtml = '';
-        if(conf.helper) fieldsHtml += `<div style="background:rgba(0,122,255,0.1); color:var(--accent); padding:10px; border-radius:8px; font-size:0.8rem; margin-bottom:15px;">💡 ${conf.helper}</div>`;
-        if(conf.fields) {
-            conf.fields.forEach(f => {
-                const placeholder = (conf.placeholder && conf.placeholder[f]) ? conf.placeholder[f] : '';
-                const label = f.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-                fieldsHtml += `<div style="margin-bottom:12px"><label style="font-size:0.75rem; opacity:0.6; margin-bottom:4px; display:block;">${label}</label><input class="editor-input custom-field-input" data-key="${f}" value="${(p.custom||{})[f]||''}" placeholder="${placeholder}"></div>`;
+            window.renderEditorFields = () => {
+                const type = document.getElementById('ed-widget').value;
+                const conf = WIDGETS[type];
+                document.getElementById('widget-desc-box').innerHTML = `<strong>${conf.label}:</strong> ${conf.desc}`;
+
+                // Render Custom Fields
+                let fieldsHtml = '';
+                if (conf.helper) fieldsHtml += `<div style="background:rgba(0,122,255,0.06); color:var(--accent); padding:12px; border-radius:12px; font-size:0.8rem; margin-bottom:15px; display:flex; gap:8px; align-items:start; border:1px solid rgba(0,122,255,0.1);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span>${conf.helper}</span>
+                </div>`;
+                if (conf.fields) {
+                    conf.fields.forEach(f => {
+                        const placeholder = (conf.placeholder && conf.placeholder[f]) ? conf.placeholder[f] : '';
+                        const label = f.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                        fieldsHtml += `<div style="margin-bottom:12px"><label style="font-size:0.75rem; opacity:0.6; margin-bottom:4px; display:block;">${label}</label><input class="editor-input custom-field-input" data-key="${f}" value="${(p.custom || {})[f] || ''}" placeholder="${placeholder}"></div>`;
+                    });
+                }
+                document.getElementById('ed-custom-fields').innerHTML = fieldsHtml || '<div style="opacity:0.5; font-size:0.9rem;">Este widget no requiere configuración extra.</div>';
+
+                // Toggle Block Editor
+                const isStandard = type === 'standard';
+                document.getElementById('block-editor-container').style.display = isStandard ? 'block' : 'none';
+                document.getElementById('project-options').style.display = isStandard ? 'block' : 'block'; // Mostrar siempre por si acaso
+
+                // Load existing blocks if standard
+                const list = document.getElementById('blocks-list');
+                list.innerHTML = ''; // Clear first
+                if (isStandard && p.blocks && p.blocks.length > 0) {
+                    p.blocks.forEach(b => window.addEditorBlock(b.type, b.type === 'text' ? b.content : b.url));
+                }
+
+                // Habilitar Sortable para los bloques
+                if (isStandard) {
+                    new Sortable(list, { handle: '.block-handle', animation: 150 });
+                }
+            };
+
+            window.renderEditorFields();
+        }
+
+        function saveProject(id) {
+            const isNew = !state.projects.find(x => x.id === id);
+            const custom = {};
+            document.querySelectorAll('.custom-field-input').forEach(i => custom[i.dataset.key] = i.value);
+
+            // Guardar Bloques
+            const blocks = [];
+            document.querySelectorAll('.block-item').forEach(el => {
+                const type = el.dataset.type;
+                const val = el.querySelector('.block-input').value;
+                if (val.trim()) {
+                    if (type === 'text') blocks.push({ type: 'text', content: val });
+                    else blocks.push({ type: 'image', url: val });
+                }
             });
-        }
-        document.getElementById('ed-custom-fields').innerHTML = fieldsHtml || '<div style="opacity:0.5; font-size:0.9rem;">Este widget no requiere configuración extra.</div>';
-        
-        // Toggle Block Editor
-        const isStandard = type === 'standard';
-        document.getElementById('block-editor-container').style.display = isStandard ? 'block' : 'none';
-        document.getElementById('project-options').style.display = isStandard ? 'block' : 'block'; // Mostrar siempre por si acaso
-        
-        // Load existing blocks if standard
-        const list = document.getElementById('blocks-list');
-        list.innerHTML = ''; // Clear first
-        if(isStandard && p.blocks && p.blocks.length > 0) {
-            p.blocks.forEach(b => window.addEditorBlock(b.type, b.type === 'text' ? b.content : b.url));
-        }
-        
-        // Habilitar Sortable para los bloques
-        if(isStandard) {
-             new Sortable(list, { handle: '.block-handle', animation: 150 });
-        }
-    };
-    
-    window.renderEditorFields();
-}
 
-function saveProject(id) {
-    const isNew = !state.projects.find(x => x.id === id);
-    const custom = {};
-    document.querySelectorAll('.custom-field-input').forEach(i => custom[i.dataset.key] = i.value);
-    
-    // Guardar Bloques
-    const blocks = [];
-    document.querySelectorAll('.block-item').forEach(el => {
-        const type = el.dataset.type;
-        const val = el.querySelector('.block-input').value;
-        if(val.trim()) {
-            if(type === 'text') blocks.push({ type: 'text', content: val });
-            else blocks.push({ type: 'image', url: val });
+            const newData = {
+                id: id,
+                title: document.getElementById('ed-title').value,
+                desc: document.getElementById('ed-desc').value,
+                category: document.getElementById('ed-cat').value,
+                shape: document.getElementById('ed-shape').value,
+                widget: document.getElementById('ed-widget').value,
+                bgImage: document.getElementById('ed-bg').value,
+                url: document.getElementById('ed-url').value,
+                isPortada: document.getElementById('ed-isPortada').checked,
+                custom: custom,
+                blocks: blocks
+            };
+
+            // Ensure only one Portada exists
+            if (newData.isPortada) {
+                state.projects.forEach(p => p.isPortada = false);
+            }
+
+            if (isNew) state.projects.push(newData);
+            else { const idx = state.projects.findIndex(x => x.id === id); state.projects[idx] = newData; }
+
+            saveData();
+            // closeSheet(); // Remove closeSheet for continuity
+            renderGrid();
+            showNotification("Cambios Guardados", "El proyecto se ha actualizado correctamente.");
         }
-    });
 
-    const newData = {
-        id: id,
-        title: document.getElementById('ed-title').value,
-        desc: document.getElementById('ed-desc').value,
-        category: document.getElementById('ed-cat').value,
-        shape: document.getElementById('ed-shape').value,
-        widget: document.getElementById('ed-widget').value,
-        bgImage: document.getElementById('ed-bg').value,
-        url: document.getElementById('ed-url').value,
-        custom: custom,
-        blocks: blocks
-    };
-    
-    if(isNew) state.projects.push(newData);
-    else { const idx = state.projects.findIndex(x => x.id === id); state.projects[idx] = newData; }
-    
-    saveData(); 
-    closeSheet(); 
-    renderGrid();
-}
-
-function openGlobalSettings() {
-    const html = `
+        function openGlobalSettings() {
+            const html = `
         <div style="padding-bottom:40px;">
             <h2 style="margin-bottom:20px;">Ajustes Globales</h2>
             
@@ -1080,22 +3089,23 @@ function openGlobalSettings() {
             <button class="pill active" style="width:100%; justify-content:center; padding:16px;" onclick="saveGlobalSettings()">Guardar Configuración</button>
         </div>
     `;
-    document.getElementById('sheet-title').innerText = "Ajustes";
-    document.getElementById('sheet-body').innerHTML = html;
-    document.getElementById('sheet-overlay').classList.add('active');
-}
+            document.getElementById('sheet-title').innerText = "Ajustes";
+            document.getElementById('sheet-body').innerHTML = html;
+            document.getElementById('sheet-overlay').classList.add('active');
+        }
 
-function saveGlobalSettings() {
-    state.config.showHelp = document.getElementById('cfg-showHelp').checked;
-    state.config.helpTitle = document.getElementById('cfg-helpTitle').value;
-    state.config.helpContent = document.getElementById('cfg-helpContent').value;
-    
-    localStorage.setItem('portfolio_config', JSON.stringify(state.config));
-    updateHelpVisibility();
-    alert("Configuración guardada correctamente");
-    closeSheet();
-}
+        function saveGlobalSettings() {
+            state.config.showHelp = document.getElementById('cfg-showHelp').checked;
+            state.config.helpTitle = document.getElementById('cfg-helpTitle').value;
+            state.config.helpContent = document.getElementById('cfg-helpContent').value;
 
-</script>
+            localStorage.setItem('portfolio_config', JSON.stringify(state.config));
+            updateHelpVisibility();
+            alert("Configuración guardada correctamente");
+            closeSheet();
+        }
+
+    </script>
 </body>
+
 </html>
