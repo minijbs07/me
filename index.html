@@ -13,7 +13,7 @@
 <link rel="dns-prefetch" href="//i.scdn.co">
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
 <style>
 /* ============================================================
    JAVIER BARBERO PORTFOLIO v20 — REDESIGNED 2026
@@ -1262,14 +1262,21 @@ window.addEventListener('DOMContentLoaded', () => {
   // Theme
   document.documentElement.setAttribute('data-theme', state.theme);
 
-  // Render
-  renderAll();
-  setupScrollListeners();
-  setupSwipeToClose();
-  setupTilt();
+  // Render — wrapped so intro always dismisses even if something throws
+  try {
+    renderAll();
+    setupScrollListeners();
+    setupSwipeToClose();
+    setupTilt();
+  } catch(e) { console.error('Init error:', e); }
 
-  // Intro out
-  setTimeout(() => document.getElementById('intro-overlay').classList.add('done'), 300);
+  // Intro out — always fires regardless of render errors
+  const _dismissIntro = () => {
+    const el = document.getElementById('intro-overlay');
+    if (el) el.classList.add('done');
+    setTimeout(() => { if (el) el.style.display = 'none'; }, 600);
+  };
+  setTimeout(_dismissIntro, 300);
 
   // GSAP entrance for profile header
   if (window.gsap) {
