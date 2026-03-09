@@ -122,30 +122,6 @@ body::after{
   transform-origin:left;
 }
 
-/* 6. INTRO OVERLAY */
-#intro-overlay{
-  position:fixed;inset:0;z-index:9998;
-  background:var(--bg);
-  display:flex;align-items:center;justify-content:center;
-  pointer-events:none;
-  transition:opacity 0.35s ease 0.15s,transform 0.45s var(--ease-out) 0.1s;
-}
-#intro-overlay.done{opacity:0;transform:scale(1.04);pointer-events:none;}
-#intro-logo{
-  display:flex;flex-direction:column;align-items:center;gap:14px;
-  animation:introIn 0.7s var(--ease-spring) forwards;
-}
-@keyframes introIn{
-  from{opacity:0;transform:scale(0.85) translateY(12px);}
-  to{opacity:1;transform:scale(1) translateY(0);}
-}
-#intro-logo .av-xl{
-  width:76px;height:76px;border-radius:50%;
-  background:url('ft.jpeg') center/cover;
-  box-shadow:0 16px 48px rgba(255,59,48,0.28),0 0 0 3px rgba(255,255,255,0.9);
-}
-#intro-logo h1{font-size:1.8rem;font-weight:800;letter-spacing:-0.05em;}
-#intro-logo p{font-size:0.9rem;color:var(--text2);font-weight:500;}
 
 /* 7. TOP NAV */
 #topnav{
@@ -1019,16 +995,6 @@ body::after{
 <!-- SCROLL PROGRESS -->
 <div id="scroll-bar"></div>
 
-<!-- INTRO -->
-<div id="intro-overlay">
-  <div id="intro-logo">
-    <div class="av-xl"></div>
-    <div style="text-align:center">
-      <h1>Javier Barbero</h1>
-      <p>Telecom engineering student</p>
-    </div>
-  </div>
-</div>
 
 <div class="mesh"></div>
 
@@ -1262,7 +1228,6 @@ window.addEventListener('DOMContentLoaded', () => {
   // Theme
   document.documentElement.setAttribute('data-theme', state.theme);
 
-  // Render — wrapped so intro always dismisses even if something throws
   try {
     renderAll();
     setupScrollListeners();
@@ -1270,13 +1235,6 @@ window.addEventListener('DOMContentLoaded', () => {
     setupTilt();
   } catch(e) { console.error('Init error:', e); }
 
-  // Intro out — always fires regardless of render errors
-  const _dismissIntro = () => {
-    const el = document.getElementById('intro-overlay');
-    if (el) el.classList.add('done');
-    setTimeout(() => { if (el) el.style.display = 'none'; }, 600);
-  };
-  setTimeout(_dismissIntro, 300);
 
   // GSAP entrance for profile header
   if (window.gsap) {
