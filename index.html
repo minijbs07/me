@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Javier Barbero | Portfolio</title>
+<title>Javier Barbero</title>
 <link rel="icon" type="image/jpeg" href="ft.jpeg">
 <meta name="theme-color" content="#f2f2f7" id="theme-meta">
 <meta name="description" content="Javier Barbero — iOS Developer, Telecom Student, Product Designer. Santander.">
@@ -11,7 +11,6 @@
 <link rel="dns-prefetch" href="//i.ibb.co">
 <link rel="dns-prefetch" href="//is1-ssl.mzstatic.com">
 <link rel="dns-prefetch" href="//i.scdn.co">
-<link rel="dns-prefetch" href="//api.mapbox.com">
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -198,58 +197,7 @@ body::after{
 }
 .admin-btn:hover{background:rgba(255,59,48,0.08);}
 
-/* 8. FLOATING PROFILE CHIP (mobile) */
-#profile-chip{
-  position:fixed;bottom:24px;right:18px;
-  background:var(--modal-bg);
-  backdrop-filter:blur(28px) saturate(180%);
-  -webkit-backdrop-filter:blur(28px) saturate(180%);
-  border:1px solid var(--tile-border);
-  border-radius:50px;
-  padding:8px 14px 8px 8px;
-  display:flex;align-items:center;gap:10px;
-  box-shadow:var(--shadow-lg);
-  z-index:3000;
-  cursor:pointer;
-  transition:transform 0.35s var(--ease-spring),box-shadow 0.3s;
-  transform:translateY(120px);
-  opacity:0;
-  will-change:transform;
-}
-#profile-chip.visible{transform:translateY(0);opacity:1;}
-#profile-chip:active{transform:scale(0.94);}
-#profile-chip .av{
-  width:30px;height:30px;border-radius:50%;
-  background:url('ft.jpeg') center/cover;
-  flex-shrink:0;
-}
-#profile-chip span{
-  font-size:0.82rem;font-weight:700;
-  color:var(--text1);white-space:nowrap;
-}
 
-/* Floating profile at top (appears on scroll) */
-#profile-float{
-  position:fixed;top:8px;left:50%;
-  transform:translateX(-50%) translateY(-80px);
-  background:var(--modal-bg);
-  backdrop-filter:blur(25px) saturate(180%);
-  -webkit-backdrop-filter:blur(25px) saturate(180%);
-  border:1px solid var(--tile-border);
-  border-radius:50px;
-  padding:6px 14px 6px 6px;
-  display:flex;align-items:center;gap:10px;
-  box-shadow:var(--shadow-md);
-  z-index:5500;
-  cursor:pointer;
-  transition:transform 0.5s var(--ease-out);
-}
-#profile-float.show{transform:translateX(-50%) translateY(0);}
-#profile-float .av{
-  width:28px;height:28px;border-radius:50%;
-  background:url('ft.jpeg') center/cover;
-}
-#profile-float h2{font-size:0.85rem;font-weight:700;white-space:nowrap;}
 
 /* 9. MAIN CONTAINER */
 .container{
@@ -368,7 +316,7 @@ body::after{
   cursor:pointer;
   overflow:hidden;
   display:flex;flex-direction:column;justify-content:space-between;
-  transition:transform 0.38s var(--ease-spring),box-shadow 0.38s,border-color 0.3s;
+  transition: transform 0.35s var(--ease-spring), box-shadow 0.35s ease, opacity 0.3s ease;
   transform-style:preserve-3d;
   contain:layout style paint;
   /* entrance animation */
@@ -379,14 +327,17 @@ body::after{
   opacity:1;
   transform:translateY(0) scale(1);
 }
-.tile:hover{
-  transform:translateY(-5px) scale(1.025);
-  box-shadow:var(--shadow-tile);
-  border-color:rgba(255,59,48,0.35);
-  z-index:10;
+.tile:active {
+  transform: scale(0.96) !important;
+  box-shadow: var(--shadow-sm);
+}
+@media (hover: hover) {
+  .tile:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-tile);
+  }
 }
 [data-theme="dark"] .tile:hover{border-color:rgba(255,149,0,0.3);box-shadow:0 20px 50px rgba(255,149,0,0.12);}
-.tile:active{transform:scale(0.95)!important;transition-duration:0.1s;}
 .tile.small{grid-column:span 1;}
 .tile.wide{grid-column:span 4;}
 .tile.tall{grid-column:span 2;grid-row:span 2;}
@@ -516,38 +467,6 @@ body::after{
   pointer-events:none;
 }
 @keyframes musicPulse{from{opacity:0.5;}to{opacity:1;}}
-
-/* 13. WIDGET: MAP */
-.map-wrap{position:absolute;inset:0;border-radius:var(--radius);overflow:hidden;}
-.map-img{width:100%;height:100%;object-fit:cover;opacity:0.82;transition:opacity 0.3s;}
-.tile:hover .map-img{opacity:1;}
-.radar-dot{
-  width:11px;height:11px;
-  background:#007aff;border-radius:50%;
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  box-shadow:0 0 0 2.5px #fff;
-  z-index:2;
-}
-.radar-wave{
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:11px;height:11px;
-  background:rgba(0,122,255,0.35);
-  border-radius:50%;
-  animation:radarPulse 2s infinite;
-  z-index:1;
-}
-@keyframes radarPulse{
-  0%{transform:translate(-50%,-50%) scale(1);opacity:0.8;}
-  100%{transform:translate(-50%,-50%) scale(5.5);opacity:0;}
-}
-.map-label{
-  position:absolute;bottom:14px;left:14px;z-index:3;
-  background:rgba(0,0,0,0.52);backdrop-filter:blur(8px);
-  color:#fff;border-radius:20px;
-  padding:4px 11px;font-size:0.72rem;font-weight:700;
-}
 
 /* 14. WIDGET: LINKTREE */
 .link-stack{display:flex;flex-direction:column;gap:5px;width:100%;}
@@ -715,7 +634,7 @@ body::after{
 .busgo-chip-icon{margin-right:4px;}
 
 /* 19. QUIEN SOY SECTION */
-#quien-soy-container{display:none;width:100%;}
+#quien-soy-container{display:block;width:100%;}
 .qs-section{
   max-width:900px;margin:0 auto 60px;
   padding:60px 16px 80px;
@@ -1086,6 +1005,14 @@ body::after{
   .grid{gap:8px;}
   .tile{padding:14px;}
 }
+
+/* SCROLL REVEAL */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.55s var(--ease-out), transform 0.55s var(--ease-out); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-left { opacity: 0; transform: translateX(-28px); transition: opacity 0.55s var(--ease-out), transform 0.55s var(--ease-out); }
+.reveal-left.visible { opacity: 1; transform: translateX(0); }
+.reveal-scale { opacity: 0; transform: scale(0.92); transition: opacity 0.5s var(--ease-spring), transform 0.5s var(--ease-spring); }
+.reveal-scale.visible { opacity: 1; transform: scale(1); }
 </style>
 </head>
 <body>
@@ -1129,17 +1056,7 @@ body::after{
   </div>
 </div>
 
-<!-- FLOATING PROFILE PILL (top, appears on scroll) -->
-<div id="profile-float" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-  <div class="av"></div>
-  <h2>Javier Barbero</h2>
-</div>
 
-<!-- FLOATING QUIEN SOY CHIP (bottom right, mobile) -->
-<div id="profile-chip" onclick="showQuienSoy()">
-  <div class="av"></div>
-  <span>Quién soy</span>
-</div>
 
 <!-- TOP NAV -->
 <nav id="topnav">
@@ -1151,7 +1068,7 @@ body::after{
       <button class="admin-btn" onclick="exportData()" title="Exportar">↓</button>
       <button class="admin-btn" onclick="toggleAdmin()" style="color:var(--accent)">Salir</button>
     </div>
-    <span class="nav-brand" id="nav-brand">Portfolio</span>
+    
   </div>
   <div class="nav-right">
     <button class="icon-btn" onclick="toggleTheme()" title="Tema">
@@ -1232,13 +1149,22 @@ body::after{
 // ============================================================
 
 // --- HAPTICS (simple vibration API) ---
-const haptic = (type = 'light') => {
-  try {
-    if (!navigator.vibrate) return;
-    const patterns = { light: 8, medium: 18, heavy: 40, success: [10, 50, 10], selection: 6 };
-    navigator.vibrate(patterns[type] || 8);
-  } catch(e) {}
-};
+function haptic(type = 'light') {
+  if (!navigator.vibrate) return;
+  const patterns = {
+    light:    [8],
+    medium:   [15],
+    heavy:    [25],
+    success:  [10, 50, 10],
+    warning:  [20, 30, 20],
+    error:    [40, 20, 40, 20, 40],
+    select:   [5],
+    double:   [8, 40, 8],
+    rigid:    [3],
+    soft:     [6]
+  };
+  navigator.vibrate(patterns[type] || patterns.light);
+}
 
 // --- DATA ---
 const CV_DATA = {
@@ -1277,12 +1203,7 @@ const CV_DATA = {
       id: 17661700001, title: 'Spotify', desc: 'Now Playing', category: 'life',
       shape: 'standard', widget: 'spotify',
       custom: { songTitle: 'DATA', artist: 'Tainy', coverUrl: 'https://i.scdn.co/image/ab67616d0000b273f885fb64a381318a1c9c14e4', spotifyUrl: 'https://open.spotify.com/track/3SdTKo2uVsxFblQjpScoHy' }
-    },
-    {
-      id: 17661700002, title: 'Santander', desc: 'Mi ciudad', category: 'life',
-      shape: 'standard', widget: 'map',
-      custom: { locationName: 'Santander, ES', mapImageUrl: 'https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-3.804,43.462,11,0/400x300@2x?access_token=pk.eyJ1IjoibWluaWpiczA3IiwiYSI6ImNtNXlqZXQzejByenQya3M1enhhbzMzdTgifQ.4LMFGCRqCGCYrqHWp0Jp0A', mapsLink: 'https://maps.apple.com/?q=Santander' }
-    },
+    }
     {
       id: 17661700003, title: 'Links', desc: '', category: 'life',
       shape: 'standard', widget: 'linktree',
@@ -1303,12 +1224,7 @@ const CV_DATA = {
       shape: 'standard', widget: 'standard', locked: true,
       bgImage: 'https://static-blog.onlyoffice.com/wp-content/uploads/2025/02/18111615/Moodle-OO-DocSpace-integration.png',
       url: '', isPortada: false, custom: {}, blocks: []
-    },
-    {
-      id: 17661700007, title: 'Setup', desc: 'Mi equipo de trabajo', category: 'design',
-      shape: 'standard', widget: 'gear',
-      custom: { gearList: 'MacBook Pro M4|Apple, iPhone 16 Pro|Apple, AirPods Pro 2|Apple, MX Master 3|Logitech' }
-    },
+    }
     {
       id: 17661700008, title: 'Fotos', desc: 'Mis últimas fotos', category: 'life',
       shape: 'wide', widget: 'instagram',
@@ -1376,8 +1292,6 @@ window.addEventListener('DOMContentLoaded', () => {
     notify('Oye, llevas un rato aquí 👀', '¿Hablamos? → javi@javib.es', '💬');
   }, 45000);
 
-  // Profile chip appears after scroll
-  setTimeout(() => document.getElementById('profile-chip').classList.add('visible'), 2000);
 
   // Keyboard shortcuts
   document.addEventListener('keydown', e => {
@@ -1398,19 +1312,6 @@ function renderAll() {
 // --- SCROLL EFFECTS ---
 function setupScrollListeners() {
   const filtersWrap = document.getElementById('filters-wrap');
-  const profileFloat = document.getElementById('profile-float');
-  const profileHeader = document.querySelector('.profile-header');
-
-  const io = new IntersectionObserver(([e]) => {
-    filtersWrap.classList.toggle('stuck', !e.isIntersecting);
-  }, { threshold: 0, rootMargin: '-' + (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 60) + 'px 0px 0px 0px' });
-  if (profileHeader) io.observe(profileHeader);
-
-  const floatIO = new IntersectionObserver(([e]) => {
-    profileFloat.classList.toggle('show', !e.isIntersecting);
-  }, { threshold: 0 });
-  const headerEl = document.getElementById('main-header');
-  if (headerEl) floatIO.observe(headerEl);
 }
 
 function updateScrollBar() {
@@ -1478,7 +1379,7 @@ function renderPortada() {
   if (!p || state.filter !== 'all') { container.innerHTML = ''; return; }
 
   container.innerHTML = `
-    <div class="portada" onclick="handlePortadaClick()">
+    <div class="portada reveal" onclick="handlePortadaClick()">
       <img src="${p.bgImage}" class="portada-bg" alt="${p.title}" fetchpriority="high" decoding="async">
       <div class="portada-content">
         <span class="portada-label">Proyecto Destacado</span>
@@ -1533,7 +1434,7 @@ function renderGrid() {
 
   visible.forEach(p => {
     const div = document.createElement('div');
-    div.className = `tile ${p.shape || 'standard'} ${p.bgImage ? 'has-bg' : ''}`;
+    div.className = `tile reveal ${p.shape || 'standard'} ${p.bgImage ? 'has-bg' : ''}`;
     div.setAttribute('data-id', p.id);
     div.setAttribute('data-category', p.category);
     div.innerHTML = buildTileHTML(p);
@@ -1590,16 +1491,6 @@ function buildTileHTML(p) {
       </div>`;
   }
 
-  if (w === 'map') {
-    const c = p.custom || {};
-    return `
-      <div class="map-wrap">
-        <img class="map-img" src="${c.mapImageUrl || ''}" alt="map" loading="lazy" decoding="async">
-        <div class="radar-wave"></div>
-        <div class="radar-dot"></div>
-        <div class="map-label">${c.locationName || ''}</div>
-      </div>`;
-  }
 
   if (w === 'linktree') {
     const c = p.custom || {};
@@ -1739,13 +1630,12 @@ function showQuienSoy() {
 
 // --- FILTER ---
 function filterGrid(cat, btn) {
-  haptic('selection');
+  haptic('select');
   state.filter = cat;
   document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   if (btn) btn.classList.add('active');
 
-  const qs = document.getElementById('quien-soy-container');
-  qs.style.display = cat === 'all' ? 'block' : 'none';
+  // quien-soy is always visible regardless of filter
 
   // Animate tiles out, re-render, animate in
   const tiles = document.querySelectorAll('#grid .tile');
@@ -1811,7 +1701,6 @@ function buildEditorHTML(p) {
   const fieldMap = {
     standard: [['bgImage','Imagen de fondo (URL)'],['url','URL destino'],['appStoreLink','App Store Link']],
     spotify: [['songTitle','Canción'],['artist','Artista'],['coverUrl','Cover URL'],['spotifyUrl','Spotify URL']],
-    map: [['locationName','Nombre lugar'],['mapImageUrl','Imagen mapa URL'],['mapsLink','Maps Link']],
     gear: [['gearList','Lista gear (Nombre|Marca, ...)']],
     instagram: [['instaImages','4 URLs separadas por coma'],['profileUrl','Perfil URL']],
     linktree: [['links','Links (Nombre|URL, ...)']],
@@ -1952,7 +1841,7 @@ function toggleAdmin() {
 // --- CMD+K ---
 let cmdIndex = -1;
 function openCmd() {
-  haptic('selection');
+  haptic('select');
   document.getElementById('cmd-overlay').classList.add('open');
   document.getElementById('cmd-input').value = '';
   renderCmd();
@@ -1995,7 +1884,7 @@ function cmdKey(e) {
 
 // --- THEME ---
 function toggleTheme() {
-  haptic('selection');
+  haptic('select');
   state.theme = state.theme === 'light' ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', state.theme);
   localStorage.setItem('theme', state.theme);
@@ -2043,6 +1932,17 @@ function setupSwipeToClose() {
     if (dy > 80) closeSheet();
   }, { passive: true });
 }
+
+// Scroll Reveal
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 60);
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal, .reveal-left, .reveal-scale').forEach(el => revealObserver.observe(el));
 
 // Apply saved theme immediately
 document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
